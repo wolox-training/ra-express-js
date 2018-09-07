@@ -1,16 +1,11 @@
-const models = require('./models');
+const models = require('./models'),
+  index = require('./controllers/index'),
+  log = require('./middlewares/log');
 
 exports.init = app => {
-  app.use('*', function(req, res, next) {
-    console.log(`A new request received at ${new Date()}`);
-    console.log('Request URL:', req.originalUrl);
-    console.log('Request Type:', req.method);
-    next();
-  });
+  app.use(log.logRequestInformation);
 
-  app.get('/', function(req, res) {
-    res.status(200).send('Home Page');
-  });
+  app.get('/', index.home);
 
   app.post(
     '/users',
