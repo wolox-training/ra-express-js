@@ -4,3 +4,5 @@ exports.logRequestInformation = (req, res, next) => {
   console.log('Request Type:', req.method);
   next();
 };
+
+exports.success = (req, res) => res.sendStatus(200);
