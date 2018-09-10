@@ -23,34 +23,6 @@ module.exports = (sequelize, DataTypes) => {
     });
   });
 
-  User.obligatoryParametersWereReceived = function(parameters) {
-    return (
-      parameters.includes('firstName') &&
-      parameters.includes('lastName') &&
-      parameters.includes('email') &&
-      parameters.includes('password')
-    );
-  };
-
-  User.emailIsValid = function(email) {
-    return email.match(validEmailPattern);
-  };
-
-  User.passwordIsValid = function(password) {
-    return password.match(validPasswordPattern);
-  };
-
-  User.emailIsAvailable = function(email) {
-    return this.findOne({
-      where: {
-        email
-      }
-    }).then(user => {
-      if (user) return Promise.resolve(false);
-      return Promise.resolve(true);
-    });
-  };
-
   User.prototype.printAfterCreationMessage = function printAfterCreationMessage() {
     console.log(`${this.firstName}´s user has been created`);
   };
