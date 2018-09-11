@@ -1,10 +1,9 @@
-const User = require('../models/').User;
-const userService = require('../services/users');
+const User = require('../models/').User,
+  userService = require('../services/users'),
+  errors = require('../errors');
 
-const errors = require('../errors');
-
-const validEmailPattern = /^[a-zA-Z0-9_.+-]+@wolox\.com\.ar$/g;
-const validPasswordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/g;
+const validEmailPattern = /^[a-zA-Z0-9_.+-]+@wolox\.com\.ar$/g,
+  validPasswordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/g;
 
 const obligatoryParametersWereReceived = parameters =>
   parameters.includes('firstName') &&
@@ -12,13 +11,17 @@ const obligatoryParametersWereReceived = parameters =>
   parameters.includes('email') &&
   parameters.includes('password');
 
+const obligatoryParametersNotNull = body => body.firstName && body.lastName && body.email && body.password;
+
 const emailIsValid = email => email.match(validEmailPattern);
 
 const passwordIsValid = password => password.match(validPasswordPattern);
 
 exports.checkIfObligatoryParametersWereReceived = (req, res, next) => {
-  if (!obligatoryParametersWereReceived(Object.keys(req.body))) return next(errors.invalidUserParameters);
-  next();
+  if (obligatoryParametersWereReceived(Object.keys(req.body)) && obligatoryParametersNotNull(req.body))
+    return next();
+
+  next(errors.invalidUserParameters);
 };
 
 exports.validateEmail = (req, res, next) => {
@@ -38,19 +41,14 @@ exports.checkIfEmailIsAvailable = (req, res, next) => {
       if (isAvailable) return next();
       next(errors.emailAlreadyInUse);
     })
-    .catch(error => next(errors.databaseError(error.message)));
+    .catch(next);
 };
 
 exports.createUser = (req, res, next) => {
-  User.create({
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    email: req.body.email,
-    password: req.body.password
-  })
+  User.createUser(req.body.firstName, req.body.lastName, req.body.email, req.body.password)
     .then(user => {
       user.printAfterCreationMessage();
-      next();
+      res.sendStatus(200);
     })
-    .catch(error => next(errors.databaseError(error.message)));
+    .catch(next);
 };
