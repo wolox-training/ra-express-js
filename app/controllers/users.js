@@ -1,39 +1,33 @@
 const User = require('../models/').User;
 const userService = require('../services/users');
 
+const errors = require('../errors');
+
 const validEmailPattern = /^[a-zA-Z0-9_.+-]+@wolox\.com\.ar$/g;
 const validPasswordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/g;
 
-const obligatoryParametersWereReceived = parameters => {
-  return (
-    parameters.includes('firstName') &&
-    parameters.includes('lastName') &&
-    parameters.includes('email') &&
-    parameters.includes('password')
-  );
-};
+const obligatoryParametersWereReceived = parameters =>
+  parameters.includes('firstName') &&
+  parameters.includes('lastName') &&
+  parameters.includes('email') &&
+  parameters.includes('password');
 
-const emailIsValid = email => {
-  return email.match(validEmailPattern);
-};
+const emailIsValid = email => email.match(validEmailPattern);
 
-const passwordIsValid = password => {
-  return password.match(validPasswordPattern);
-};
+const passwordIsValid = password => password.match(validPasswordPattern);
 
 exports.checkIfObligatoryParametersWereReceived = (req, res, next) => {
-  if (!obligatoryParametersWereReceived(Object.keys(req.body)))
-    return res.status(400).send('Missing obligatory parameters');
+  if (!obligatoryParametersWereReceived(Object.keys(req.body))) return next(errors.invalidUserParameters);
   next();
 };
 
 exports.validateEmail = (req, res, next) => {
-  if (!emailIsValid(req.body.email)) return res.status(400).send('Invalid email');
+  if (!emailIsValid(req.body.email)) return next(errors.invalidUserEmail);
   next();
 };
 
 exports.validatePassword = (req, res, next) => {
-  if (!passwordIsValid(req.body.password)) return res.status(400).send('Invalid password');
+  if (!passwordIsValid(req.body.password)) return next(errors.invalidUserPassword);
   next();
 };
 
@@ -42,12 +36,9 @@ exports.checkIfEmailIsAvailable = (req, res, next) => {
     .emailIsAvailable(req.body.email)
     .then(isAvailable => {
       if (isAvailable) return next();
-      return res.status(400).send('Email is already in use');
+      next(errors.emailAlreadyInUse);
     })
-    .catch(error => {
-      console.log(error.message);
-      return res.status(503).send(error.message);
-    });
+    .catch(error => next(errors.databaseError(error.message)));
 };
 
 exports.createUser = (req, res, next) => {
@@ -61,8 +52,5 @@ exports.createUser = (req, res, next) => {
       user.printAfterCreationMessage();
       next();
     })
-    .catch(error => {
-      console.log(error.message);
-      return res.status(503).send(error.message);
-    });
+    .catch(error => next(errors.databaseError(error.message)));
 };
