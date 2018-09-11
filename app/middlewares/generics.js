@@ -1,7 +1,9 @@
+const logger = require('../logger');
+
 exports.logRequestInformation = (req, res, next) => {
-  console.log(`A new request received at ${new Date()}`);
-  console.log('Request URL:', req.originalUrl);
-  console.log('Request Type:', req.method);
+  logger.info(`A new request received at ${new Date()}`);
+  logger.info('Request URL:', req.originalUrl);
+  logger.info('Request Type:', req.method);
   next();
 };
 

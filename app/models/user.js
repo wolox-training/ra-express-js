@@ -1,10 +1,9 @@
 'use strict';
 
 const bcrypt = require('../../node_modules/bcryptjs');
+const logger = require('../logger');
 
 const saltRounds = 10;
-const validEmailPattern = /^[a-zA-Z0-9_.+-]+@wolox\.com\.ar$/g;
-const validPasswordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/g;
 
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
@@ -24,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   User.prototype.printAfterCreationMessage = function printAfterCreationMessage() {
-    console.log(`${this.firstName}´s user has been created`);
+    logger.info(`${this.firstName}´s user has been created`);
   };
 
   return User;
