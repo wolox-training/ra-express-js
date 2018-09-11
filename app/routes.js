@@ -13,7 +13,6 @@ exports.init = app => {
     userController.validateEmail,
     userController.validatePassword,
     userController.checkIfEmailIsAvailable,
-    userController.createUser,
-    generics.success
+    userController.createUser
   );
 };
