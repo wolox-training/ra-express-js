@@ -9,11 +9,8 @@ exports.defaultError = message => internalError(message, exports.DEFAULT_ERROR);
 exports.DATABASE_ERROR = 'database_error';
 exports.databaseError = message => internalError(message, exports.DATABASE_ERROR);
 
-exports.INVALID_USER_PARAMETERS = 'invalid_user_parameters';
-exports.invalidUserParameters = internalError(
-  'Missing obligatory parameters',
-  exports.INVALID_USER_PARAMETERS
-);
+exports.INVALID_PARAMETERS = 'invalid_parameters';
+exports.invalidParameters = internalError('Missing obligatory parameters', exports.INVALID_PARAMETERS);
 
 exports.INVALID_USER_EMAIL = 'invalid_user_email';
 exports.invalidUserEmail = internalError('Invalid email', exports.INVALID_USER_EMAIL);
@@ -23,3 +20,12 @@ exports.invalidUserPassword = internalError('Invalid password', exports.INVALID_
 
 exports.EMAIL_ALREADY_IN_USE = 'email_already_in_use';
 exports.emailAlreadyInUse = internalError('Email is already in use', exports.EMAIL_ALREADY_IN_USE);
+
+exports.EMAIL_NOT_MATCH_ANY_ACCOUNT = 'email_not_match_any_account';
+exports.emailNotMatchAnyAccount = internalError(
+  'Email does not match any account',
+  exports.EMAIL_NOT_MATCH_ANY_ACCOUNT
+);
+
+exports.WRONG_PASSWORD = 'wrong_password';
+exports.wrongPassword = internalError('Wrong password', exports.WRONG_PASSWORD);

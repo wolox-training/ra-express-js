@@ -31,5 +31,9 @@ module.exports = (sequelize, DataTypes) => {
     return `${user.firstName}´s user has been created`;
   };
 
+  User.prototype.passwordMatch = function passwordMatch(password) {
+    return bcrypt.compare(password, this.password);
+  };
+
   return User;
 };

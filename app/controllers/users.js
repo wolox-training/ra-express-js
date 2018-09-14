@@ -14,7 +14,7 @@ const emailIsValid = email => email.match(validEmailPattern);
 const passwordIsValid = password => password.match(validPasswordPattern);
 
 exports.createUser = (req, res, next) => {
-  if (!obligatoryParametersWereReceived(req.body)) return next(errors.invalidUserParameters);
+  if (!obligatoryParametersWereReceived(req.body)) return next(errors.invalidParameters);
 
   if (!emailIsValid(req.body.email)) return next(errors.invalidUserEmail);
 
@@ -29,6 +29,32 @@ exports.createUser = (req, res, next) => {
     .then(user => {
       logger.info(User.getAfterCreationMessage(user));
       res.sendStatus(200);
+    })
+    .catch(next);
+};
+
+exports.logIn = (req, res, next) => {
+  if (!req.body.email || !req.body.password) return next(errors.invalidParameters);
+
+  if (!emailIsValid(req.body.email)) return next(errors.invalidUserEmail);
+
+  let usr;
+
+  userService
+    .getUserByEmail(req.body.email)
+    .then(user => {
+      if (!user) throw errors.emailNotMatchAnyAccount;
+      usr = user;
+      return user.passwordMatch(req.body.password);
+    })
+    .then(match => {
+      if (!match) throw errors.wrongPassword;
+
+      jwt.sign({ id: usr.id, email: usr.email }, process.env.JWT_KEY, (err, token) => {
+        if (err) throw errors.defaultError(err.message);
+
+        res.status(200).json({ token });
+      });
     })
     .catch(next);
 };
