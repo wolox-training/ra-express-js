@@ -35,5 +35,9 @@ module.exports = (sequelize, DataTypes) => {
     return bcrypt.compare(password, this.password);
   };
 
+  User.prototype.getAfterLoggingInMessage = function getAfterLoggingInMessage() {
+    return `${this.firstName}´s user has logged in correctly`;
+  };
+
   return User;
 };
