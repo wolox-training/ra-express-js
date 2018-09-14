@@ -6,6 +6,7 @@ const express = require('express'),
   config = require('./config'),
   routes = require('./app/routes'),
   errors = require('./app/middlewares/errors'),
+  generics = require('./app/middlewares/generics'),
   migrationsManager = require('./migrations'),
   logger = require('./app/logger'),
   DEFAULT_BODY_SIZE_LIMIT = 1024 * 1024 * 10,
@@ -49,6 +50,8 @@ const init = () => {
       }
     })
     .then(() => {
+      app.use(generics.logRequestInformation);
+
       routes.init(app);
 
       app.use(errors.handle);
