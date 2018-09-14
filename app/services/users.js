@@ -6,12 +6,18 @@ exports.emailIsAvailable = email => {
     where: {
       email
     }
-  })
-    .then(user => {
-      if (user) return Promise.resolve(false);
-      return Promise.resolve(true);
-    })
-    .catch(error => {
-      throw errors.databaseError(error.message);
-    });
+  }).catch(error => {
+    throw errors.databaseError(error.message);
+  });
+};
+
+exports.createUser = userParameters => {
+  return User.create({
+    firstName: userParameters.firstName,
+    lastName: userParameters.lastName,
+    email: userParameters.email,
+    password: userParameters.password
+  }).catch(error => {
+    throw errors.databaseError(error.message);
+  });
 };

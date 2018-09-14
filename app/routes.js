@@ -1,18 +1,5 @@
-const indexController = require('./controllers/index'),
-  userController = require('./controllers/users'),
-  generics = require('./middlewares/generics');
+const userController = require('./controllers/users');
 
 exports.init = app => {
-  app.use(generics.logRequestInformation);
-
-  app.get('/', indexController.home);
-
-  app.post(
-    '/users',
-    userController.checkIfObligatoryParametersWereReceived,
-    userController.validateEmail,
-    userController.validatePassword,
-    userController.checkIfEmailIsAvailable,
-    userController.createUser
-  );
+  app.post('/users', userController.createUser);
 };
