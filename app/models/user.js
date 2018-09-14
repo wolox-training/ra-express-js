@@ -28,19 +28,6 @@ module.exports = (sequelize, DataTypes) => {
       });
   });
 
-  User.createUser = (firstName, lastName, email, password) => {
-    return User.create({
-      firstName,
-      lastName,
-      email,
-      password
-    })
-      .then(user => Promise.resolve(user))
-      .catch(error => {
-        throw errors.databaseError(error.message);
-      });
-  };
-
   User.prototype.printAfterCreationMessage = function printAfterCreationMessage() {
     logger.info(`${this.firstName}´s user has been created`);
   };
