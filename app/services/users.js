@@ -1,7 +1,7 @@
 const User = require('../models/').User,
   errors = require('../errors');
 
-exports.emailIsAvailable = email => {
+exports.getUserByEmail = email => {
   return User.findOne({
     where: {
       email

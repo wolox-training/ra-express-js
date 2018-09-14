@@ -20,7 +20,7 @@ exports.createUser = (req, res, next) => {
   if (!passwordIsValid(req.body.password)) return next(errors.invalidUserPassword);
 
   userService
-    .emailIsAvailable(req.body.email)
+    .getUserByEmail(req.body.email)
     .then(user => {
       if (user) throw errors.emailAlreadyInUse;
     })
