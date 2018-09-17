@@ -124,4 +124,33 @@ describe('/users POST', () => {
         err.response.body.should.have.property('internal_code');
       });
   });
+
+  it('should fail sign up, email is already in use', () => {
+    return chai
+      .request(server)
+      .post('/users')
+      .send({
+        firstName: 'Rodrigo',
+        lastName: 'Aparicio',
+        email: 'rodrigo.aparicio@wolox.com.ar',
+        password: '12345678a'
+      })
+      .then(res => {
+        return chai
+          .request(server)
+          .post('/users')
+          .send({
+            firstName: 'OtherRodrigo',
+            lastName: 'OtherAparicio',
+            email: 'rodrigo.aparicio@wolox.com.ar',
+            password: '12345678a'
+          });
+      })
+      .catch(err => {
+        err.should.have.status(400);
+        err.response.should.be.json;
+        err.response.body.should.have.property('message');
+        err.response.body.should.have.property('internal_code');
+      });
+  });
 });
