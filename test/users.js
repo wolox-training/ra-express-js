@@ -176,3 +176,113 @@ describe('/users POST', () => {
       });
   });
 });
+
+describe('/users/sessions POST', () => {
+  it('should pass sign in, parameters are correct', () => {
+    return User.create({
+      firstName: 'Rodrigo',
+      lastName: 'Aparicio',
+      email: 'rodrigo.aparicio@wolox.com.ar',
+      password: '12345678a'
+    })
+      .then(user => {
+        return chai
+          .request(server)
+          .post('/users/sessions')
+          .send({
+            email: 'rodrigo.aparicio@wolox.com.ar',
+            password: '12345678a'
+          });
+      })
+      .then(res => {
+        res.should.have.status(200);
+        dictum.chai(res, 'the user sent now is logged in');
+      });
+  });
+
+  it('should fail sign in, missing password parameter', () => {
+    return chai
+      .request(server)
+      .post('/users/sessions')
+      .send({
+        email: 'rodrigo.aparicio@wolox.com.ar'
+      })
+      .catch(err => {
+        err.should.have.status(400);
+        err.response.should.be.json;
+        err.response.body.should.have.property('message');
+        err.response.body.should.have.property('internal_code');
+      });
+  });
+
+  it('should fail sign in, missing email parameter', () => {
+    return chai
+      .request(server)
+      .post('/users/sessions')
+      .send({
+        password: '12345678a'
+      })
+      .catch(err => {
+        err.should.have.status(400);
+        err.response.should.be.json;
+        err.response.body.should.have.property('message');
+        err.response.body.should.have.property('internal_code');
+      });
+  });
+
+  it('should fail sign in, email is invalid', () => {
+    return chai
+      .request(server)
+      .post('/users/sessions')
+      .send({
+        email: 'rodrigo.aparicio@yahoo.com.ar',
+        password: '12345678a'
+      })
+      .catch(err => {
+        err.should.have.status(400);
+        err.response.should.be.json;
+        err.response.body.should.have.property('message');
+        err.response.body.should.have.property('internal_code');
+      });
+  });
+
+  it('should fail sign in, email does not match any account', () => {
+    return chai
+      .request(server)
+      .post('/users/sessions')
+      .send({
+        email: 'rodrigo.aparicio@wolox.com.ar',
+        password: '12345678a'
+      })
+      .catch(err => {
+        err.should.have.status(400);
+        err.response.should.be.json;
+        err.response.body.should.have.property('message');
+        err.response.body.should.have.property('internal_code');
+      });
+  });
+
+  it('should fail sign in, password is wrong', () => {
+    return User.create({
+      firstName: 'Rodrigo',
+      lastName: 'Aparicio',
+      email: 'rodrigo.aparicio@wolox.com.ar',
+      password: '12345678a'
+    })
+      .then(user => {
+        return chai
+          .request(server)
+          .post('/users/sessions')
+          .send({
+            email: 'rodrigo.aparicio@wolox.com.ar',
+            password: 'wrongpassword55'
+          });
+      })
+      .catch(err => {
+        err.should.have.status(400);
+        err.response.should.be.json;
+        err.response.body.should.have.property('message');
+        err.response.body.should.have.property('internal_code');
+      });
+  });
+});
