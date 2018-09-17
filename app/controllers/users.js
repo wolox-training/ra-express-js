@@ -23,8 +23,8 @@ exports.createUser = (req, res, next) => {
     .getUserByEmail(req.body.email)
     .then(user => {
       if (user) throw errors.emailAlreadyInUse;
+      return userService.createUser(req.body);
     })
-    .then(() => userService.createUser(req.body))
     .then(user => {
       user.printAfterCreationMessage();
       res.sendStatus(200);
