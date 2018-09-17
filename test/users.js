@@ -1,6 +1,7 @@
 const chai = require('chai'),
   dictum = require('dictum.js'),
-  server = require('./../app');
+  server = require('./../app'),
+  User = require('../app/models').User;
 
 chai.should();
 
@@ -126,16 +127,15 @@ describe('/users POST', () => {
   });
 
   it('should fail sign up, email is already in use', () => {
-    return chai
-      .request(server)
-      .post('/users')
-      .send({
-        firstName: 'Rodrigo',
-        lastName: 'Aparicio',
-        email: 'rodrigo.aparicio@wolox.com.ar',
-        password: '12345678a'
-      })
-      .then(res => {
+    // The first user is created manually using the model to not depend on the
+    // implementation
+    return User.create({
+      firstName: 'Rodrigo',
+      lastName: 'Aparicio',
+      email: 'rodrigo.aparicio@wolox.com.ar',
+      password: '12345678a'
+    })
+      .then(user => {
         return chai
           .request(server)
           .post('/users')
