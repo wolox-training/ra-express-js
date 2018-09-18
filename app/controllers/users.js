@@ -1,5 +1,6 @@
-const User = require('../models/').User,
+const { User } = require('../models/'),
   userService = require('../services/users'),
+  logger = require('../logger'),
   errors = require('../errors');
 
 const validEmailPattern = /^[a-zA-Z0-9_.+-]+@wolox\.com\.ar$/g,
@@ -26,7 +27,7 @@ exports.createUser = (req, res, next) => {
       return userService.createUser(req.body);
     })
     .then(user => {
-      user.printAfterCreationMessage();
+      logger.info(User.getAfterCreationMessage(user));
       res.sendStatus(200);
     })
     .catch(next);

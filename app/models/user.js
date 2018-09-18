@@ -1,7 +1,6 @@
 'use strict';
 
 const bcrypt = require('../../node_modules/bcryptjs'),
-  logger = require('../logger'),
   errors = require('../errors');
 
 const saltRounds = 10;
@@ -28,8 +27,8 @@ module.exports = (sequelize, DataTypes) => {
       });
   });
 
-  User.prototype.printAfterCreationMessage = function printAfterCreationMessage() {
-    logger.info(`${this.firstName}´s user has been created`);
+  User.getAfterCreationMessage = function getAfterCreationMessage(user) {
+    return `${user.firstName}´s user has been created`;
   };
 
   return User;
