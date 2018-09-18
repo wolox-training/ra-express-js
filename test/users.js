@@ -1,12 +1,14 @@
 const chai = require('chai'),
   dictum = require('dictum.js'),
   server = require('./../app'),
-  User = require('../app/models').User;
+  { User } = require('../app/models');
 
 chai.should();
 
 describe('/users POST', () => {
   it('should pass sign up, parameters are valid', () => {
+    let response;
+
     return chai
       .request(server)
       .post('/users')
@@ -18,7 +20,20 @@ describe('/users POST', () => {
       })
       .then(res => {
         res.should.have.status(200);
-        dictum.chai(res, 'a new user is created with the parameters sent');
+        response = res;
+        return User.find({
+          where: {
+            firstName: 'Rodrigo',
+            lastName: 'Aparicio',
+            email: 'rodrigo.aparicio@wolox.com.ar'
+          }
+        });
+      })
+      .then(user => {
+        chai.expect(user).to.be.a('object');
+        chai.expect(user.password).to.not.equal('12345678a');
+        chai.expect(user.password).to.be.a('string');
+        dictum.chai(response, 'a new user is created with the parameters sent');
       });
   });
 
@@ -37,6 +52,7 @@ describe('/users POST', () => {
         err.response.should.be.json;
         err.response.body.should.have.property('message');
         err.response.body.should.have.property('internal_code');
+        chai.expect(err.response.body.internal_code).to.equal('invalid_user_password');
       });
   });
 
@@ -55,6 +71,7 @@ describe('/users POST', () => {
         err.response.should.be.json;
         err.response.body.should.have.property('message');
         err.response.body.should.have.property('internal_code');
+        chai.expect(err.response.body.internal_code).to.equal('invalid_user_password');
       });
   });
 
@@ -72,6 +89,7 @@ describe('/users POST', () => {
         err.response.should.be.json;
         err.response.body.should.have.property('message');
         err.response.body.should.have.property('internal_code');
+        chai.expect(err.response.body.internal_code).to.equal('invalid_user_parameters');
       });
   });
 
@@ -89,6 +107,7 @@ describe('/users POST', () => {
         err.response.should.be.json;
         err.response.body.should.have.property('message');
         err.response.body.should.have.property('internal_code');
+        chai.expect(err.response.body.internal_code).to.equal('invalid_user_parameters');
       });
   });
 
@@ -106,6 +125,7 @@ describe('/users POST', () => {
         err.response.should.be.json;
         err.response.body.should.have.property('message');
         err.response.body.should.have.property('internal_code');
+        chai.expect(err.response.body.internal_code).to.equal('invalid_user_parameters');
       });
   });
 
@@ -123,6 +143,7 @@ describe('/users POST', () => {
         err.response.should.be.json;
         err.response.body.should.have.property('message');
         err.response.body.should.have.property('internal_code');
+        chai.expect(err.response.body.internal_code).to.equal('invalid_user_parameters');
       });
   });
 
@@ -151,6 +172,7 @@ describe('/users POST', () => {
         err.response.should.be.json;
         err.response.body.should.have.property('message');
         err.response.body.should.have.property('internal_code');
+        chai.expect(err.response.body.internal_code).to.equal('email_already_in_use');
       });
   });
 });
