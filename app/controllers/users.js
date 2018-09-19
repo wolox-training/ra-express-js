@@ -5,7 +5,8 @@ const { User } = require('../models/'),
   jwt = require('../../node_modules/jsonwebtoken');
 
 const validEmailPattern = /^[a-zA-Z0-9_.+-]+@wolox\.com\.ar$/g,
-  validPasswordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/g;
+  validPasswordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/g,
+  limitOfUsersPerPage = 2;
 
 const obligatoryParametersWereReceived = body =>
   body.firstName && body.lastName && body.email && body.password;
@@ -63,4 +64,17 @@ exports.logIn = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
+exports.listUsers = (req, res, next) => {
+  const page = req.params.page;
+  const offset = limitOfUsersPerPage * (page - 1);
+
+  userService
+    .getAllUsersWithPagination(limitOfUsersPerPage, offset)
+    .then(users => {
+      const pages = Math.ceil(users.count / limitOfUsersPerPage);
+      res.status(200).json({ users: users.rows, count: users.count, pages });
+    })
+    .catch(next);
 };

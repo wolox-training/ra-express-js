@@ -24,3 +24,13 @@ exports.createUser = userParameters => {
 };
 
 exports.userPasswordMatch = (plainPassword, hashedPassword) => bcrypt.compare(plainPassword, hashedPassword);
+
+exports.getAllUsersWithPagination = (limit, offset) => {
+  return User.findAndCountAll({
+    attributes: ['firstName', 'lastName', 'email'],
+    offset,
+    limit
+  }).catch(error => {
+    throw errors.databaseError(error.message);
+  });
+};
