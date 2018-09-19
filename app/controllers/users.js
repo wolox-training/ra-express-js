@@ -46,7 +46,7 @@ exports.logIn = (req, res, next) => {
     .then(user => {
       if (!user) throw errors.emailNotMatchAnyAccount;
       usr = user;
-      return user.passwordMatch(req.body.password);
+      return User.passwordMatch(req.body.password, user.password);
     })
     .then(match => {
       if (!match) throw errors.wrongPassword;
@@ -54,7 +54,7 @@ exports.logIn = (req, res, next) => {
       jwt.sign({ id: usr.id, email: usr.email }, process.env.JWT_KEY, (err, token) => {
         if (err) throw errors.defaultError(err.message);
 
-        logger.info(usr.getAfterLoggingInMessage());
+        logger.info(User.getAfterLoggingInMessage(usr));
         res.status(200).json({ token });
       });
     })

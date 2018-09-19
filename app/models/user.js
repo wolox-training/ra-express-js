@@ -31,12 +31,12 @@ module.exports = (sequelize, DataTypes) => {
     return `${user.firstName}´s user has been created`;
   };
 
-  User.prototype.passwordMatch = function passwordMatch(password) {
-    return bcrypt.compare(password, this.password);
+  User.passwordMatch = function passwordMatch(plainPassword, hashedPassword) {
+    return bcrypt.compare(plainPassword, hashedPassword);
   };
 
-  User.prototype.getAfterLoggingInMessage = function getAfterLoggingInMessage() {
-    return `${this.firstName}´s user has logged in correctly`;
+  User.getAfterLoggingInMessage = function getAfterLoggingInMessage(user) {
+    return `${user.firstName}´s user has logged in correctly`;
   };
 
   return User;
