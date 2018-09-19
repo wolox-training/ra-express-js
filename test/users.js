@@ -196,6 +196,9 @@ describe('/users/sessions POST', () => {
       })
       .then(res => {
         res.should.have.status(200);
+        res.should.be.json;
+        res.body.should.have.property('token');
+        chai.expect(res.body.token).to.be.a('string');
         dictum.chai(res, 'the user sent now is logged in');
       });
   });
@@ -212,6 +215,7 @@ describe('/users/sessions POST', () => {
         err.response.should.be.json;
         err.response.body.should.have.property('message');
         err.response.body.should.have.property('internal_code');
+        chai.expect(err.response.body.internal_code).to.equal('invalid_parameters');
       });
   });
 
@@ -227,6 +231,7 @@ describe('/users/sessions POST', () => {
         err.response.should.be.json;
         err.response.body.should.have.property('message');
         err.response.body.should.have.property('internal_code');
+        chai.expect(err.response.body.internal_code).to.equal('invalid_parameters');
       });
   });
 
@@ -243,6 +248,7 @@ describe('/users/sessions POST', () => {
         err.response.should.be.json;
         err.response.body.should.have.property('message');
         err.response.body.should.have.property('internal_code');
+        chai.expect(err.response.body.internal_code).to.equal('invalid_user_email');
       });
   });
 
@@ -259,6 +265,7 @@ describe('/users/sessions POST', () => {
         err.response.should.be.json;
         err.response.body.should.have.property('message');
         err.response.body.should.have.property('internal_code');
+        chai.expect(err.response.body.internal_code).to.equal('email_not_match_any_account');
       });
   });
 
@@ -283,6 +290,7 @@ describe('/users/sessions POST', () => {
         err.response.should.be.json;
         err.response.body.should.have.property('message');
         err.response.body.should.have.property('internal_code');
+        chai.expect(err.response.body.internal_code).to.equal('wrong_password');
       });
   });
 });
