@@ -78,3 +78,16 @@ exports.listUsers = (req, res, next) => {
     })
     .catch(next);
 };
+
+exports.listUsers = (req, res, next) => {
+  const page = req.params.page;
+  const offset = limitOfUsersPerPage * (page - 1);
+
+  userService
+    .getAllUsersWithPagination(limitOfUsersPerPage, offset)
+    .then(users => {
+      const pages = Math.ceil(users.count / limitOfUsersPerPage);
+      res.status(200).json({ users: users.rows, count: users.count, pages });
+    })
+    .catch(next);
+};
