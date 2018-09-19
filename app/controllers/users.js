@@ -1,4 +1,4 @@
-const { User } = require('../models/'),  
+const { User } = require('../models/'),
   userService = require('../services/users'),
   errors = require('../errors'),
   logger = require('../logger'),
