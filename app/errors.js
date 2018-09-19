@@ -29,3 +29,6 @@ exports.emailNotMatchAnyAccount = internalError(
 
 exports.WRONG_PASSWORD = 'wrong_password';
 exports.wrongPassword = internalError('Wrong password', exports.WRONG_PASSWORD);
+
+exports.NO_TOKEN_PROVIDED = 'no_token_provided';
+exports.noTokenProvided = internalError('No token provided for authentication', exports.NO_TOKEN_PROVIDED);

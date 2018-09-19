@@ -6,5 +6,5 @@ exports.init = app => {
 
   app.post('/users/sessions', userController.logIn);
 
-  app.get('/users/:page', userController.listUsers);
+  app.get('/users/:page', generics.verifyToken, userController.listUsers);
 };
