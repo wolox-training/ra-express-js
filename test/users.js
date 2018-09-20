@@ -1,9 +1,24 @@
 const chai = require('chai'),
   dictum = require('dictum.js'),
   server = require('./../app'),
-  { User } = require('../app/models');
+  { User } = require('../app/models'),
+  jwt = require('jsonwebtoken');
 
 chai.should();
+
+const someUser = {
+  firstName: 'Federico',
+  lastName: 'Diaz',
+  email: 'federico.diaz@wolox.com.ar',
+  password: '12345678a'
+};
+
+const someUser2 = {
+  firstName: 'Tomas',
+  lastName: 'Gomez',
+  email: 'tomas.gomez@wolox.com.ar',
+  password: '12345678a'
+};
 
 describe('/users POST', () => {
   it('should pass sign up, parameters are valid', () => {
@@ -149,7 +164,7 @@ describe('/users POST', () => {
 
   it('should fail sign up, email is already in use', () => {
     // The first user is created manually using the model to not depend on the
-    // implementation
+    // Sign Up endpoint implementation
     return User.create({
       firstName: 'Rodrigo',
       lastName: 'Aparicio',
@@ -179,6 +194,8 @@ describe('/users POST', () => {
 
 describe('/users/sessions POST', () => {
   it('should pass sign in, parameters are correct', () => {
+    // The user is created manually using the model to not depend on the
+    // Sign Up endpoint implementation
     return User.create({
       firstName: 'Rodrigo',
       lastName: 'Aparicio',
@@ -270,6 +287,8 @@ describe('/users/sessions POST', () => {
   });
 
   it('should fail sign in, password is wrong', () => {
+    // The user is created manually using the model to not depend on the
+    // Sign Up endpoint implementation
     return User.create({
       firstName: 'Rodrigo',
       lastName: 'Aparicio',
@@ -291,6 +310,103 @@ describe('/users/sessions POST', () => {
         err.response.body.should.have.property('message');
         err.response.body.should.have.property('internal_code');
         chai.expect(err.response.body.internal_code).to.equal('wrong_password');
+      });
+  });
+});
+
+describe('/users/:page GET', () => {
+  it('should pass getting users, token is provided', () => {
+    const page = 1;
+
+    // The users are created manually using the model to not depend on the
+    // Sign Up endpoint implementation
+    return User.create(someUser)
+      .then(user => {
+        return User.create(someUser2);
+      })
+      .then(user => {
+        // The sign in is manually to no depend on the Sign In endpoint
+        // implementation
+        return new Promise((resolve, reject) => {
+          return jwt.sign({ id: user.id, email: user.email }, process.env.JWT_KEY, (err, token) => {
+            return resolve(token);
+          });
+        });
+      })
+      .then(token => {
+        return chai
+          .request(server)
+          .get(`/users/${page}`)
+          .send({
+            token
+          });
+      })
+      .then(res => {
+        res.should.have.status(200);
+        res.should.be.json;
+        res.body.should.have.property('users');
+        res.body.should.have.property('count');
+        res.body.should.have.property('pages');
+        chai.expect(res.body.users).to.be.a('array');
+        chai.expect(res.body.count).to.be.a('number');
+        chai.expect(res.body.pages).to.be.a('number');
+        chai.expect(res.body.count).to.equal(2);
+        dictum.chai(res, 'the users of the page requested now are in the response');
+      });
+  });
+
+  it('should fail getting users, no token is provided', () => {
+    const page = 1;
+
+    return chai
+      .request(server)
+      .get(`/users/${page}`)
+      .catch(err => {
+        err.should.have.status(403);
+        err.response.should.be.json;
+        err.response.body.should.have.property('message');
+        err.response.body.should.have.property('internal_code');
+        chai.expect(err.response.body.internal_code).to.equal('no_token_provided');
+      });
+  });
+
+  it('should no get users, page number is too big', () => {
+    const page = 1000;
+
+    // The users are created manually using the model to not depend on the
+    // Sign Up endpoint implementation
+    return User.create(someUser)
+      .then(user => {
+        return User.create(someUser2);
+      })
+      .then(user => {
+        // The sign in is manually to no depend on the Sign In endpoint
+        // implementation
+        return new Promise((resolve, reject) => {
+          return jwt.sign({ id: user.id, email: user.email }, process.env.JWT_KEY, (err, token) => {
+            return resolve(token);
+          });
+        });
+      })
+      .then(token => {
+        return chai
+          .request(server)
+          .get(`/users/${page}`)
+          .send({
+            token
+          });
+      })
+      .then(res => {
+        res.should.have.status(200);
+        res.should.be.json;
+        res.body.should.have.property('users');
+        res.body.should.have.property('count');
+        res.body.should.have.property('pages');
+        chai.expect(res.body.users).to.be.a('array');
+        chai.expect(res.body.count).to.be.a('number');
+        chai.expect(res.body.pages).to.be.a('number');
+        chai.expect(res.body.count).to.equal(2);
+        chai.expect(res.body.users.length).to.equal(0);
       });
   });
 });
