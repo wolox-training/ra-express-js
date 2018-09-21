@@ -7,4 +7,6 @@ exports.init = app => {
   app.post('/users/sessions', userController.logIn);
 
   app.get('/users', generics.verifyToken, userController.listUsers);
+
+  app.post('/admin/users', userController.createAdminUser);
 };
