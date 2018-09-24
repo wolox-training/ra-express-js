@@ -63,17 +63,20 @@ exports.logIn = async (req, res, next) => {
 
   if (!emailIsValid(req.body.email)) return next(errors.invalidUserEmail);
 
-  try {
-    const user = await userService.getUserByEmail(req.body.email);
-    if (!user) throw errors.emailNotMatchAnyAccount;
+  const filter = {
+    email: req.body.email
+  };
 
-<<<<<<< 8925755d711e8d0b74ac4bfd2bbc98fb4acfaf48
-    const match = await userService.userPasswordMatch(req.body.password, user.password);
+  try {
+    const users = await userService.getUsersByFilter(filter);
+    if (!users[0]) throw errors.emailNotMatchAnyAccount;
+
+    const match = await userService.userPasswordMatch(req.body.password, users[0].password);
     if (!match) throw errors.wrongPassword;
 
-    const token = await generateToken(user);
+    const token = await generateToken(users[0]);
 
-    logger.info(User.getAfterLoggingInMessage(user));
+    logger.info(User.getAfterLoggingInMessage(users[0]));
     res.status(200).json({ token });
   } catch (err) {
     next(err);
@@ -82,40 +85,6 @@ exports.logIn = async (req, res, next) => {
 
 exports.listUsers = (req, res, next) => {
   const page = req.query.page;
-  const offset = limitOfUsersPerPage * (page - 1);
-
-  userService
-    .getAllUsersWithPagination(limitOfUsersPerPage, offset)
-    .then(users => {
-      const pages = Math.ceil(users.count / limitOfUsersPerPage);
-      res.status(200).json({ users: users.rows, count: users.count, pages });
-=======
-  const filter = {
-    email: req.body.email
-  };
-
-  userService
-    .getUsersByFilter(filter)
-    .then(users => {
-      if (!users[0]) throw errors.emailNotMatchAnyAccount;
-      usr = users[0];
-      return User.passwordMatch(req.body.password, users[0].password);
-    })
-    .then(match => {
-      if (!match) throw errors.wrongPassword;
-
-      jwt.sign({ id: usr.id, email: usr.email }, process.env.JWT_KEY, (err, token) => {
-        if (err) throw errors.defaultError(err.message);
-        logger.info(User.getAfterLoggingInMessage(usr));
-        res.status(200).json({ token });
-      });
->>>>>>> Creation of administrator user. Update of regular user to administrator user.
-    })
-    .catch(next);
-};
-
-exports.listUsers = (req, res, next) => {
-  const page = req.params.page;
   const offset = limitOfUsersPerPage * (page - 1);
 
   userService
