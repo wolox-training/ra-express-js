@@ -1,5 +1,6 @@
 const { User } = require('../models/'),
-  errors = require('../errors');
+  errors = require('../errors'),
+  bcrypt = require('../../node_modules/bcryptjs');
 
 exports.getUserByEmail = email => {
   return User.findOne({
@@ -21,3 +22,5 @@ exports.createUser = userParameters => {
     throw errors.databaseError(error.message);
   });
 };
+
+exports.userPasswordMatch = (plainPassword, hashedPassword) => bcrypt.compare(plainPassword, hashedPassword);
