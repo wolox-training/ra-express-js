@@ -314,7 +314,7 @@ describe('/users/sessions POST', () => {
   });
 });
 
-describe('/users/:page GET', () => {
+describe('/users GET', () => {
   it('should pass getting users, token is provided', () => {
     const page = 1;
 
@@ -336,7 +336,8 @@ describe('/users/:page GET', () => {
       .then(token => {
         return chai
           .request(server)
-          .get(`/users/${page}`)
+          .get('/users')
+          .query({ page })
           .send({
             token
           });
@@ -360,7 +361,8 @@ describe('/users/:page GET', () => {
 
     return chai
       .request(server)
-      .get(`/users/${page}`)
+      .get('/users')
+      .query({ page })
       .catch(err => {
         err.should.have.status(403);
         err.response.should.be.json;
@@ -391,7 +393,8 @@ describe('/users/:page GET', () => {
       .then(token => {
         return chai
           .request(server)
-          .get(`/users/${page}`)
+          .get('/users')
+          .query({ page })
           .send({
             token
           });

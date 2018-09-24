@@ -67,7 +67,7 @@ exports.logIn = async (req, res, next) => {
 };
 
 exports.listUsers = (req, res, next) => {
-  const page = req.params.page;
+  const page = req.query.page;
   const offset = limitOfUsersPerPage * (page - 1);
 
   userService
