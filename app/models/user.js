@@ -27,17 +27,9 @@ module.exports = (sequelize, DataTypes) => {
       });
   });
 
-  User.getAfterCreationMessage = function getAfterCreationMessage(user) {
-    return `${user.firstName}´s user has been created`;
-  };
+  User.getAfterCreationMessage = user => `${user.firstName}´s user has been created`;
 
-  User.passwordMatch = function passwordMatch(plainPassword, hashedPassword) {
-    return bcrypt.compare(plainPassword, hashedPassword);
-  };
-
-  User.getAfterLoggingInMessage = function getAfterLoggingInMessage(user) {
-    return `${user.firstName}´s user has logged in correctly`;
-  };
+  User.getAfterLoggingInMessage = user => `${user.firstName}´s user has logged in correctly`;
 
   return User;
 };
