@@ -412,4 +412,63 @@ describe('/users GET', () => {
         chai.expect(res.body.users.length).to.equal(0);
       });
   });
+
+  it('should fail getting users, missing page', () => {
+    return User.create(someUser)
+      .then(user => {
+        // The sign in is manually to no depend on the Sign In endpoint
+        // implementation
+        return new Promise((resolve, reject) => {
+          return jwt.sign({ id: user.id, email: user.email }, process.env.JWT_KEY, (err, token) => {
+            return resolve(token);
+          });
+        });
+      })
+      .then(token => {
+        return chai
+          .request(server)
+          .get('/users')
+          .send({
+            token
+          });
+      })
+      .catch(err => {
+        err.should.have.status(400);
+        err.response.should.be.json;
+        err.response.body.should.have.property('message');
+        err.response.body.should.have.property('internal_code');
+        chai.expect(err.response.body.internal_code).to.equal('missing_parameters');
+      });
+  });
+
+  it('should fail getting users, missing page (is not an integer)', () => {
+    const page = 'hi';
+
+    return User.create(someUser)
+      .then(user => {
+        // The sign in is manually to no depend on the Sign In endpoint
+        // implementation
+        return new Promise((resolve, reject) => {
+          return jwt.sign({ id: user.id, email: user.email }, process.env.JWT_KEY, (err, token) => {
+            return resolve(token);
+          });
+        });
+      })
+      .then(token => {
+        return chai
+          .request(server)
+          .get('/users')
+          .query({ page })
+          .send({
+            token
+          });
+      })
+      .catch(err => {
+        err.should.have.status(400);
+        err.response.should.be.json;
+        err.response.body.should.have.property('message');
+        err.response.body.should.have.property('internal_code');
+        chai.expect(err.response.body.internal_code).to.equal('missing_parameters');
+      });
+  });
 });

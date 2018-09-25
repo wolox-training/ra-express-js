@@ -67,6 +67,8 @@ exports.logIn = async (req, res, next) => {
 };
 
 exports.listUsers = (req, res, next) => {
+  if (!req.query.page || !Number.isInteger(Number(req.query.page))) return next(errors.missingParameters);
+
   const page = req.query.page;
   const offset = limitOfUsersPerPage * (page - 1);
 
