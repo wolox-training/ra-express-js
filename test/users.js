@@ -104,7 +104,7 @@ describe('/users POST', () => {
         err.response.should.be.json;
         err.response.body.should.have.property('message');
         err.response.body.should.have.property('internal_code');
-        chai.expect(err.response.body.internal_code).to.equal('invalid_parameters');
+        chai.expect(err.response.body.internal_code).to.equal('missing_parameters');
       });
   });
 
@@ -122,7 +122,7 @@ describe('/users POST', () => {
         err.response.should.be.json;
         err.response.body.should.have.property('message');
         err.response.body.should.have.property('internal_code');
-        chai.expect(err.response.body.internal_code).to.equal('invalid_parameters');
+        chai.expect(err.response.body.internal_code).to.equal('missing_parameters');
       });
   });
 
@@ -140,7 +140,7 @@ describe('/users POST', () => {
         err.response.should.be.json;
         err.response.body.should.have.property('message');
         err.response.body.should.have.property('internal_code');
-        chai.expect(err.response.body.internal_code).to.equal('invalid_parameters');
+        chai.expect(err.response.body.internal_code).to.equal('missing_parameters');
       });
   });
 
@@ -158,7 +158,7 @@ describe('/users POST', () => {
         err.response.should.be.json;
         err.response.body.should.have.property('message');
         err.response.body.should.have.property('internal_code');
-        chai.expect(err.response.body.internal_code).to.equal('invalid_parameters');
+        chai.expect(err.response.body.internal_code).to.equal('missing_parameters');
       });
   });
 
@@ -232,7 +232,7 @@ describe('/users/sessions POST', () => {
         err.response.should.be.json;
         err.response.body.should.have.property('message');
         err.response.body.should.have.property('internal_code');
-        chai.expect(err.response.body.internal_code).to.equal('invalid_parameters');
+        chai.expect(err.response.body.internal_code).to.equal('missing_parameters');
       });
   });
 
@@ -248,7 +248,7 @@ describe('/users/sessions POST', () => {
         err.response.should.be.json;
         err.response.body.should.have.property('message');
         err.response.body.should.have.property('internal_code');
-        chai.expect(err.response.body.internal_code).to.equal('invalid_parameters');
+        chai.expect(err.response.body.internal_code).to.equal('missing_parameters');
       });
   });
 

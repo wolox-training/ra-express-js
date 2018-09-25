@@ -16,7 +16,7 @@ const emailIsValid = email => email.match(validEmailPattern);
 const passwordIsValid = password => password.match(validPasswordPattern);
 
 exports.createUser = (req, res, next) => {
-  if (!obligatoryParametersWereReceived(req.body)) return next(errors.invalidParameters);
+  if (!obligatoryParametersWereReceived(req.body)) return next(errors.missingParameters);
 
   if (!emailIsValid(req.body.email)) return next(errors.invalidUserEmail);
 
@@ -46,7 +46,7 @@ const generateToken = user => {
 };
 
 exports.logIn = async (req, res, next) => {
-  if (!req.body.email || !req.body.password) return next(errors.invalidParameters);
+  if (!req.body.email || !req.body.password) return next(errors.missingParameters);
 
   if (!emailIsValid(req.body.email)) return next(errors.invalidUserEmail);
 

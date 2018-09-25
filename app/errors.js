@@ -9,8 +9,8 @@ exports.defaultError = message => internalError(message, exports.DEFAULT_ERROR);
 exports.DATABASE_ERROR = 'database_error';
 exports.databaseError = message => internalError(message, exports.DATABASE_ERROR);
 
-exports.INVALID_PARAMETERS = 'invalid_parameters';
-exports.invalidParameters = internalError('Missing obligatory parameters', exports.INVALID_PARAMETERS);
+exports.MISSING_PARAMETERS = 'missing_parameters';
+exports.missingParameters = internalError('Missing obligatory parameters', exports.MISSING_PARAMETERS);
 
 exports.INVALID_USER_EMAIL = 'invalid_user_email';
 exports.invalidUserEmail = internalError('Invalid email', exports.INVALID_USER_EMAIL);
@@ -29,6 +29,9 @@ exports.emailNotMatchAnyAccount = internalError(
 
 exports.WRONG_PASSWORD = 'wrong_password';
 exports.wrongPassword = internalError('Wrong password', exports.WRONG_PASSWORD);
+
+exports.NO_TOKEN_PROVIDED = 'no_token_provided';
+exports.noTokenProvided = internalError('No token provided for authentication', exports.NO_TOKEN_PROVIDED);
 
 exports.NO_TOKEN_PROVIDED = 'no_token_provided';
 exports.noTokenProvided = internalError('No token provided for authentication', exports.NO_TOKEN_PROVIDED);
