@@ -8,5 +8,5 @@ exports.init = app => {
 
   app.get('/users', generics.verifyToken, userController.listUsers);
 
-  app.post('/admin/users', userController.createAdminUser);
+  app.post('/admin/users', generics.verifyAdministratorToken, userController.createAdminUser);
 };
