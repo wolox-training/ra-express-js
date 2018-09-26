@@ -17,7 +17,7 @@ const emailIsValid = email => email.match(validEmailPattern);
 const passwordIsValid = password => password.match(validPasswordPattern);
 
 const validateUserCreation = parameters => {
-  if (!obligatoryParametersWereReceived(parameters)) throw errors.invalidParameters;
+  if (!obligatoryParametersWereReceived(parameters)) throw errors.missingParameters;
 
   if (!emailIsValid(parameters.email)) throw errors.invalidUserEmail;
 
