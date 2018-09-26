@@ -4,7 +4,7 @@ const errors = require('../errors'),
 const DEFAULT_STATUS_CODE = 500;
 
 const statusCodes = {
-  [errors.INVALID_PARAMETERS]: 400,
+  [errors.MISSING_PARAMETERS]: 400,
   [errors.INVALID_USER_EMAIL]: 400,
   [errors.INVALID_USER_PASSWORD]: 400,
   [errors.EMAIL_ALREADY_IN_USE]: 400,

@@ -63,7 +63,7 @@ const generateToken = user => {
 };
 
 exports.logIn = async (req, res, next) => {
-  if (!req.body.email || !req.body.password) return next(errors.invalidParameters);
+  if (!req.body.email || !req.body.password) return next(errors.missingParameters);
 
   if (!emailIsValid(req.body.email)) return next(errors.invalidUserEmail);
 
@@ -88,6 +88,8 @@ exports.logIn = async (req, res, next) => {
 };
 
 exports.listUsers = (req, res, next) => {
+  if (!req.query.page || !Number.isInteger(Number(req.query.page))) return next(errors.missingParameters);
+
   const page = req.query.page;
   const offset = limitOfUsersPerPage * (page - 1);
 
