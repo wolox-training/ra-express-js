@@ -2,7 +2,8 @@ const chai = require('chai'),
   dictum = require('dictum.js'),
   server = require('./../app'),
   { User } = require('../app/models'),
-  jwt = require('jsonwebtoken');
+  jwt = require('jsonwebtoken'),
+  enums = require('../app/enums');
 
 chai.should();
 
@@ -18,6 +19,14 @@ const someUser2 = {
   lastName: 'Gomez',
   email: 'tomas.gomez@wolox.com.ar',
   password: '12345678a'
+};
+
+const someAdministratorUser = {
+  firstName: 'Matias',
+  lastName: 'Perez',
+  email: 'matias.perez@wolox.com.ar',
+  password: '12345678a',
+  permission: enums.PERMISSION.ADMINISTRATOR
 };
 
 describe('/users POST', () => {
@@ -410,6 +419,105 @@ describe('/users GET', () => {
         chai.expect(res.body.pages).to.be.a('number');
         chai.expect(res.body.count).to.equal(2);
         chai.expect(res.body.users.length).to.equal(0);
+      });
+  });
+});
+
+describe('/admin/users POST', () => {
+  it('should pass creating administrator user, administrator token is provided and parameters are valid', () => {
+    // The users is created manually using the model to not depend on the
+    // Sign Up endpoint implementation
+    return User.create(someAdministratorUser)
+      .then(user => {
+        // The sign in is manually to no depend on the Sign In endpoint
+        // implementation
+        return new Promise((resolve, reject) => {
+          return jwt.sign(
+            { id: user.id, email: user.email, permission: user.permission },
+            process.env.JWT_KEY,
+            (err, token) => {
+              return resolve(token);
+            }
+          );
+        });
+      })
+      .then(token => {
+        return chai
+          .request(server)
+          .post('/admin/users')
+          .send({
+            token,
+            firstName: 'Rodrigo',
+            lastName: 'Aparicio',
+            email: 'rodrigo.aparicio@wolox.com.ar',
+            password: '12345678a'
+          });
+      })
+      .then(res => {
+        res.should.have.status(200);
+        return User.find({
+          where: {
+            firstName: 'Rodrigo',
+            lastName: 'Aparicio',
+            email: 'rodrigo.aparicio@wolox.com.ar'
+          }
+        }).then(user => {
+          chai.expect(user).to.be.a('object');
+          chai.expect(user.permission).to.equal(enums.PERMISSION.ADMINISTRATOR);
+          dictum.chai(res, 'a new user with administrator permission is created with the parameters sent');
+        });
+      });
+  });
+
+  it('should pass updating regular to administrator user, administrator token is provided and parameters are valid', () => {
+    // The users are created manually using the model to not depend on the
+    // Sign Up endpoint implementation
+    return User.create(someUser)
+      .then(regularUser => {
+        return User.create(someAdministratorUser);
+      })
+      .then(administratorUser => {
+        // The sign in is manually to no depend on the Sign In endpoint
+        // implementation
+        return new Promise((resolve, reject) => {
+          return jwt.sign(
+            {
+              id: administratorUser.id,
+              email: administratorUser.email,
+              permission: administratorUser.permission
+            },
+            process.env.JWT_KEY,
+            (err, token) => {
+              return resolve(token);
+            }
+          );
+        });
+      })
+      .then(token => {
+        return chai
+          .request(server)
+          .post('/admin/users')
+          .send({
+            token,
+            firstName: someUser.firstName,
+            lastName: someUser.lastName,
+            email: someUser.email,
+            password: someUser.password
+          });
+      })
+      .then(res => {
+        res.should.have.status(200);
+        return User.find({
+          where: {
+            firstName: someUser.firstName,
+            lastName: someUser.lastName,
+            email: someUser.email
+          }
+        }).then(user => {
+          chai.expect(user).to.be.a('object');
+          chai.expect(user.permission).to.equal(enums.PERMISSION.ADMINISTRATOR);
+          dictum.chai(res, 'an user with regular permission now has administrator permission');
+        });
       });
   });
 });
