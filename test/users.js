@@ -520,4 +520,52 @@ describe('/admin/users POST', () => {
         });
       });
   });
+
+  it('should fail creating administrator user, no token is provided', () => {
+    return chai
+      .request(server)
+      .post('/admin/users')
+      .send(someUser)
+      .catch(err => {
+        err.should.have.status(403);
+        err.response.should.be.json;
+        err.response.body.should.have.property('message');
+        err.response.body.should.have.property('internal_code');
+        chai.expect(err.response.body.internal_code).to.equal('no_token_provided');
+      });
+  });
+
+  it('should fail creating administrator user, no administrator token is provided', () => {
+    return User.create(someUser)
+      .then(regularUser => {
+        // The sign in is manually to no depend on the Sign In endpoint
+        // implementation
+        return new Promise((resolve, reject) => {
+          return jwt.sign(
+            {
+              id: regularUser.id,
+              email: regularUser.email,
+              permission: regularUser.permission
+            },
+            process.env.JWT_KEY,
+            (err, token) => {
+              return resolve(token);
+            }
+          );
+        });
+      })
+      .then(token => {
+        return chai
+          .request(server)
+          .post('/admin/users')
+          .send({ token }, someUser2);
+      })
+      .catch(err => {
+        err.should.have.status(403);
+        err.response.should.be.json;
+        err.response.body.should.have.property('message');
+        err.response.body.should.have.property('internal_code');
+        chai.expect(err.response.body.internal_code).to.equal('no_administrator_permission');
+      });
+  });
 });
