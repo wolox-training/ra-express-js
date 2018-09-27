@@ -2,7 +2,8 @@ const { User } = require('../models/'),
   userService = require('../services/users'),
   errors = require('../errors'),
   logger = require('../logger'),
-  jwt = require('../../node_modules/jsonwebtoken');
+  jwt = require('../../node_modules/jsonwebtoken'),
+  config = require('../../config');
 
 const validEmailPattern = /^[a-zA-Z0-9_.+-]+@wolox\.com\.ar$/g,
   validPasswordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/g,
@@ -37,7 +38,7 @@ exports.createUser = (req, res, next) => {
 
 const generateToken = user => {
   return new Promise((resolve, reject) => {
-    jwt.sign({ id: user.id, email: user.email }, process.env.JWT_KEY, (err, token) => {
+    jwt.sign({ id: user.id, email: user.email }, config.common.session.secret, (err, token) => {
       if (err) return reject(errors.defaultError(err.message));
 
       resolve(token);

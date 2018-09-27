@@ -2,7 +2,8 @@ const chai = require('chai'),
   dictum = require('dictum.js'),
   server = require('./../app'),
   { User } = require('../app/models'),
-  jwt = require('jsonwebtoken');
+  jwt = require('jsonwebtoken'),
+  config = require('../config');
 
 chai.should();
 
@@ -316,7 +317,7 @@ describe('/users/sessions POST', () => {
 
 const signIn = user => {
   return new Promise((resolve, reject) => {
-    jwt.sign({ id: user.id, email: user.email }, process.env.JWT_KEY, (err, token) => {
+    jwt.sign({ id: user.id, email: user.email }, config.common.session.secret, (err, token) => {
       resolve(token);
     });
   });
