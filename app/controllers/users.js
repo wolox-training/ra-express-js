@@ -38,7 +38,8 @@ exports.createUser = (req, res, next) => {
   userService
     .getUsersByFilter(filter)
     .then(users => {
-      if (users[0]) throw errors.emailAlreadyInUse;
+      const [user] = users;
+      if (user) throw errors.emailAlreadyInUse;
       return userService.createUser(req.body);
     })
     .then(user => {
@@ -73,14 +74,15 @@ exports.logIn = async (req, res, next) => {
 
   try {
     const users = await userService.getUsersByFilter(filter);
-    if (!users[0]) throw errors.emailNotMatchAnyAccount;
+    const [user] = users;
+    if (!user) throw errors.emailNotMatchAnyAccount;
 
-    const match = await userService.userPasswordMatch(req.body.password, users[0].password);
+    const match = await userService.userPasswordMatch(req.body.password, user.password);
     if (!match) throw errors.wrongPassword;
 
-    const token = await generateToken(users[0]);
+    const token = await generateToken(user);
 
-    logger.info(User.getAfterLoggingInMessage(users[0]));
+    logger.info(User.getAfterLoggingInMessage(user));
     res.status(200).json({ token });
   } catch (err) {
     next(err);
@@ -118,9 +120,10 @@ exports.createAdminUser = (req, res, next) => {
   userService
     .getUsersByFilter(filter)
     .then(users => {
-      if (users[0]) {
-        users[0].permission = enums.PERMISSION.ADMINISTRATOR;
-        return users[0]
+      const [user] = users;
+      if (user) {
+        user.permission = enums.PERMISSION.ADMINISTRATOR;
+        return user
           .save()
           .then(() => res.sendStatus(200))
           .catch(error => {
@@ -135,22 +138,20 @@ exports.createAdminUser = (req, res, next) => {
       return userService
         .getUsersByFilter(emailFilter)
         .then(usersWithEmail => {
+          const [userWithEmail] = usersWithEmail;
           // If there is no user matching with the body parameters, it is
           // checked that the email is not in use in order to create properly
           // the new user
-          if (usersWithEmail[0]) throw errors.emailAlreadyInUse;
+          if (userWithEmail) throw errors.emailAlreadyInUse;
 
           // If the email is available, a new administrator user is created
           // with the body parameters
           req.body.permission = enums.PERMISSION.ADMINISTRATOR;
           return userService.createUser(req.body);
         })
-        .then(user => {
-          logger.info(User.getAfterCreationMessage(user));
+        .then(newUser => {
+          logger.info(User.getAfterCreationMessage(newUser));
           res.sendStatus(200);
-        })
-        .catch(error => {
-          throw error;
         });
     })
     .catch(next);
