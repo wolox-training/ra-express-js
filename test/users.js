@@ -314,6 +314,14 @@ describe('/users/sessions POST', () => {
   });
 });
 
+const signIn = user => {
+  return new Promise((resolve, reject) => {
+    jwt.sign({ id: user.id, email: user.email }, process.env.JWT_KEY, (err, token) => {
+      resolve(token);
+    });
+  });
+};
+
 describe('/users GET', () => {
   it('should pass getting users, token is provided', () => {
     const page = 1;
@@ -324,15 +332,7 @@ describe('/users GET', () => {
       .then(user => {
         return User.create(someUser2);
       })
-      .then(user => {
-        // The sign in is manually to no depend on the Sign In endpoint
-        // implementation
-        return new Promise((resolve, reject) => {
-          return jwt.sign({ id: user.id, email: user.email }, process.env.JWT_KEY, (err, token) => {
-            return resolve(token);
-          });
-        });
-      })
+      .then(signIn)
       .then(token => {
         return chai
           .request(server)
@@ -381,15 +381,7 @@ describe('/users GET', () => {
       .then(user => {
         return User.create(someUser2);
       })
-      .then(user => {
-        // The sign in is manually to no depend on the Sign In endpoint
-        // implementation
-        return new Promise((resolve, reject) => {
-          return jwt.sign({ id: user.id, email: user.email }, process.env.JWT_KEY, (err, token) => {
-            return resolve(token);
-          });
-        });
-      })
+      .then(signIn)
       .then(token => {
         return chai
           .request(server)
@@ -415,15 +407,7 @@ describe('/users GET', () => {
 
   it('should fail getting users, missing page', () => {
     return User.create(someUser)
-      .then(user => {
-        // The sign in is manually to no depend on the Sign In endpoint
-        // implementation
-        return new Promise((resolve, reject) => {
-          return jwt.sign({ id: user.id, email: user.email }, process.env.JWT_KEY, (err, token) => {
-            return resolve(token);
-          });
-        });
-      })
+      .then(signIn)
       .then(token => {
         return chai
           .request(server)
@@ -445,15 +429,7 @@ describe('/users GET', () => {
     const page = 'hi';
 
     return User.create(someUser)
-      .then(user => {
-        // The sign in is manually to no depend on the Sign In endpoint
-        // implementation
-        return new Promise((resolve, reject) => {
-          return jwt.sign({ id: user.id, email: user.email }, process.env.JWT_KEY, (err, token) => {
-            return resolve(token);
-          });
-        });
-      })
+      .then(signIn)
       .then(token => {
         return chai
           .request(server)
