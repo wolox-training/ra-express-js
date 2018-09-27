@@ -3,7 +3,8 @@ const { User } = require('../models/'),
   errors = require('../errors'),
   logger = require('../logger'),
   jwt = require('../../node_modules/jsonwebtoken'),
-  enums = require('../enums');
+  enums = require('../enums'),
+  config = require('../../config');
 
 const validEmailPattern = /^[a-zA-Z0-9_.+-]+@wolox\.com\.ar$/g,
   validPasswordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/g,
@@ -53,7 +54,7 @@ const generateToken = user => {
   return new Promise((resolve, reject) => {
     jwt.sign(
       { id: user.id, email: user.email, permission: user.permission },
-      process.env.JWT_KEY,
+      config.common.session.secret,
       (err, token) => {
         if (err) return reject(errors.defaultError(err.message));
 
