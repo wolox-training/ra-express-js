@@ -37,4 +37,18 @@ describe('/albums GET', () => {
         dictum.chai(res, 'all albums were obtained');
       });
   });
+
+  it('should not get albums, no token is provided', () => {
+    return User.create(generics.someUser)
+      .then(() => {
+        return chai.request(server).get('/albums');
+      })
+      .catch(err => {
+        err.should.have.status(403);
+        err.response.should.be.json;
+        err.response.body.should.have.property('message');
+        err.response.body.should.have.property('internal_code');
+        chai.expect(err.response.body.internal_code).to.equal('no_token_provided');
+      });
+  });
 });

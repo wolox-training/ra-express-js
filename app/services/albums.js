@@ -4,7 +4,7 @@ const config = require('../../config'),
 
 exports.getAllAlbums = () => {
   return fetch(config.common.albumsApi.uri)
-    .then(response => response.json())
+    .then(res => res.json())
     .catch(error => {
       throw errors.albumsApiError(error.message);
     });
