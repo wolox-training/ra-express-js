@@ -29,7 +29,6 @@ const validateUserCreation = parameters => {
 
 exports.createUser = (req, res, next) => {
   const error = validateUserCreation(req.body);
-
   if (error) return next(error);
 
   const filter = {
@@ -106,11 +105,8 @@ exports.listUsers = (req, res, next) => {
 };
 
 exports.createAdminUser = (req, res, next) => {
-  try {
-    validateUserCreation(req.body);
-  } catch (err) {
-    return next(err);
-  }
+  const err = validateUserCreation(req.body);
+  if (err) return next(err);
 
   const filter = {
     firstName: req.body.firstName,
