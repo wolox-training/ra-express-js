@@ -1,5 +1,6 @@
 const userController = require('./controllers/users'),
-  generics = require('./middlewares/generics');
+  generics = require('./middlewares/generics'),
+  albumController = require('./controllers/albums');
 
 exports.init = app => {
   app.post('/users', userController.createUser);
@@ -9,4 +10,6 @@ exports.init = app => {
   app.get('/users', generics.verifyToken, userController.listUsers);
 
   app.post('/admin/users', generics.verifyAdministratorToken, userController.createAdminUser);
+
+  app.get('/albums', albumController.getAllAlbums);
 };
