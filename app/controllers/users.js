@@ -18,19 +18,19 @@ const emailIsValid = email => email.match(validEmailPattern);
 const passwordIsValid = password => password.match(validPasswordPattern);
 
 const validateUserCreation = parameters => {
-  if (!obligatoryParametersWereReceived(parameters)) throw errors.missingParameters;
+  if (!obligatoryParametersWereReceived(parameters)) return errors.missingParameters;
 
-  if (!emailIsValid(parameters.email)) throw errors.invalidUserEmail;
+  if (!emailIsValid(parameters.email)) return errors.invalidUserEmail;
 
-  if (!passwordIsValid(parameters.password)) throw errors.invalidUserPassword;
+  if (!passwordIsValid(parameters.password)) return errors.invalidUserPassword;
+
+  return null;
 };
 
 exports.createUser = (req, res, next) => {
-  try {
-    validateUserCreation(req.body);
-  } catch (err) {
-    return next(err);
-  }
+  const error = validateUserCreation(req.body);
+
+  if (error) return next(error);
 
   const filter = {
     email: req.body.email
