@@ -38,3 +38,6 @@ exports.noAdministratorPermission = internalError(
   'Do not have administrator permission',
   exports.NO_ADMINISTRATOR_PERMISSION
 );
+
+exports.ALBUMS_API_ERROR = 'albums_api_error';
+exports.albumsApiError = message => internalError(message, exports.ALBUMS_API_ERROR);
