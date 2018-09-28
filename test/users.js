@@ -2,33 +2,10 @@ const chai = require('chai'),
   dictum = require('dictum.js'),
   server = require('./../app'),
   { User } = require('../app/models'),
-  jwt = require('jsonwebtoken'),
   enums = require('../app/enums'),
-  config = require('../config');
+  generics = require('./generics');
 
 chai.should();
-
-const someUser = {
-  firstName: 'Federico',
-  lastName: 'Diaz',
-  email: 'federico.diaz@wolox.com.ar',
-  password: '12345678a'
-};
-
-const someUser2 = {
-  firstName: 'Tomas',
-  lastName: 'Gomez',
-  email: 'tomas.gomez@wolox.com.ar',
-  password: '12345678a'
-};
-
-const someAdministratorUser = {
-  firstName: 'Matias',
-  lastName: 'Perez',
-  email: 'matias.perez@wolox.com.ar',
-  password: '12345678a',
-  permission: enums.PERMISSION.ADMINISTRATOR
-};
 
 describe('/users POST', () => {
   it('should pass sign up, parameters are valid', () => {
@@ -324,29 +301,17 @@ describe('/users/sessions POST', () => {
   });
 });
 
-const signIn = user => {
-  return new Promise((resolve, reject) => {
-    jwt.sign(
-      { id: user.id, email: user.email, permission: user.permission },
-      config.common.session.secret,
-      (err, token) => {
-        resolve(token);
-      }
-    );
-  });
-};
-
 describe('/users GET', () => {
   it('should pass getting users, token is provided', () => {
     const page = 1;
 
     // The users are created manually using the model to not depend on the
     // Sign Up endpoint implementation
-    return User.create(someUser)
+    return User.create(generics.someUser)
       .then(user => {
-        return User.create(someUser2);
+        return User.create(generics.someUser2);
       })
-      .then(signIn)
+      .then(generics.signIn)
       .then(token => {
         return chai
           .request(server)
@@ -391,11 +356,11 @@ describe('/users GET', () => {
 
     // The users are created manually using the model to not depend on the
     // Sign Up endpoint implementation
-    return User.create(someUser)
+    return User.create(generics.someUser)
       .then(user => {
-        return User.create(someUser2);
+        return User.create(generics.someUser2);
       })
-      .then(signIn)
+      .then(generics.signIn)
       .then(token => {
         return chai
           .request(server)
@@ -420,8 +385,8 @@ describe('/users GET', () => {
   });
 
   it('should fail getting users, missing page', () => {
-    return User.create(someUser)
-      .then(signIn)
+    return User.create(generics.someUser)
+      .then(generics.signIn)
       .then(token => {
         return chai
           .request(server)
@@ -442,8 +407,8 @@ describe('/users GET', () => {
   it('should fail getting users, missing page (is not an integer)', () => {
     const page = 'hi';
 
-    return User.create(someUser)
-      .then(signIn)
+    return User.create(generics.someUser)
+      .then(generics.signIn)
       .then(token => {
         return chai
           .request(server)
@@ -467,8 +432,8 @@ describe('/admin/users POST', () => {
   it('should pass creating administrator user, administrator token is provided and parameters are valid', () => {
     // The users is created manually using the model to not depend on the
     // Sign Up endpoint implementation
-    return User.create(someAdministratorUser)
-      .then(signIn)
+    return User.create(generics.someAdministratorUser)
+      .then(generics.signIn)
       .then(token => {
         return chai
           .request(server)
@@ -500,30 +465,30 @@ describe('/admin/users POST', () => {
   it('should pass updating regular to administrator user, administrator token is provided and parameters are valid', () => {
     // The users are created manually using the model to not depend on the
     // Sign Up endpoint implementation
-    return User.create(someUser)
+    return User.create(generics.someUser)
       .then(regularUser => {
-        return User.create(someAdministratorUser);
+        return User.create(generics.someAdministratorUser);
       })
-      .then(signIn)
+      .then(generics.signIn)
       .then(token => {
         return chai
           .request(server)
           .post('/admin/users')
           .send({
             token,
-            firstName: someUser.firstName,
-            lastName: someUser.lastName,
-            email: someUser.email,
-            password: someUser.password
+            firstName: generics.someUser.firstName,
+            lastName: generics.someUser.lastName,
+            email: generics.someUser.email,
+            password: generics.someUser.password
           });
       })
       .then(res => {
         res.should.have.status(200);
         return User.find({
           where: {
-            firstName: someUser.firstName,
-            lastName: someUser.lastName,
-            email: someUser.email
+            firstName: generics.someUser.firstName,
+            lastName: generics.someUser.lastName,
+            email: generics.someUser.email
           }
         }).then(user => {
           chai.expect(user).to.be.a('object');
@@ -537,7 +502,7 @@ describe('/admin/users POST', () => {
     return chai
       .request(server)
       .post('/admin/users')
-      .send(someUser)
+      .send(generics.someUser)
       .catch(err => {
         err.should.have.status(403);
         err.response.should.be.json;
@@ -548,13 +513,13 @@ describe('/admin/users POST', () => {
   });
 
   it('should fail creating administrator user, no administrator token is provided', () => {
-    return User.create(someUser)
-      .then(signIn)
+    return User.create(generics.someUser)
+      .then(generics.signIn)
       .then(token => {
         return chai
           .request(server)
           .post('/admin/users')
-          .send({ token }, someUser2);
+          .send({ token }, generics.someUser2);
       })
       .catch(err => {
         err.should.have.status(403);
