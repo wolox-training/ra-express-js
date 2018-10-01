@@ -18,7 +18,8 @@ module.exports = (sequelize, DataTypes) => {
     }
   });
   User.associate = function(models) {
-    // associations can be defined here
+    // The foreignKey name is specified because by default it is UserId
+    User.hasMany(models.Album, { foreignKey: 'userId' });
   };
 
   User.beforeCreate((user, options) => {
