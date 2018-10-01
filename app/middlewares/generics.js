@@ -32,8 +32,9 @@ exports.verifyAdministratorToken = (req, res, next) => {
     return jwt.verify(token, config.common.session.secret, (err, decoded) => {
       if (err) return next(errors.defaultError(err.message));
 
-      if (decoded.permission !== enums.PERMISSION.ADMINISTRATOR)
+      if (decoded.permission !== enums.PERMISSION.ADMINISTRATOR) {
         return next(errors.noAdministratorPermission);
+      }
 
       return next();
     });
