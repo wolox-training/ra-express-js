@@ -41,3 +41,18 @@ exports.noAdministratorPermission = internalError(
 
 exports.ALBUMS_API_ERROR = 'albums_api_error';
 exports.albumsApiError = message => internalError(message, exports.ALBUMS_API_ERROR);
+
+exports.ALBUM_ALREADY_HAS_OWNER_USER = 'album_already_has_owner_user';
+exports.albumAlreadyHasOwnerUser = internalError(
+  'The album already has an owner user',
+  exports.ALBUM_ALREADY_HAS_OWNER_USER
+);
+
+exports.USER_ALREADY_HAS_THE_ALBUM = 'user_already_has_the_album';
+exports.userAlreadyHasTheAlbum = internalError(
+  'User already has the album',
+  exports.USER_ALREADY_HAS_THE_ALBUM
+);
+
+exports.ALBUM_NOT_EXISTS = 'album_not_exists';
+exports.albumNotExists = internalError('The album does not exist', exports.ALBUM_NOT_EXISTS);

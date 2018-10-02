@@ -18,6 +18,7 @@ exports.verifyToken = (req, res, next) => {
     return jwt.verify(token, config.common.session.secret, (err, decoded) => {
       if (err) return next(errors.defaultError(err.message));
 
+      req.body.userId = decoded.id;
       return next();
     });
   }

@@ -12,4 +12,6 @@ exports.init = app => {
   app.post('/admin/users', generics.verifyAdministratorToken, userController.createAdminUser);
 
   app.get('/albums', generics.verifyToken, albumController.getAllAlbums);
+
+  app.post('/albums/:id', generics.verifyToken, albumController.buyAlbum);
 };
