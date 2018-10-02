@@ -61,14 +61,14 @@ exports.logIn = async (req, res, next) => {
     const token = await generateToken(user);
 
     logger.info(User.getAfterLoggingInMessage(user));
-    res.status(200).json({ token });
+    res.json({ token });
   } catch (err) {
     next(err);
   }
 };
 
 exports.listUsers = (req, res, next) => {
-  if (!req.query.page || !Number.isInteger(Number(req.query.page))) return next(errors.missingParameters);
+  if (!req.query.page) return next(errors.missingParameters);
 
   const page = req.query.page;
   const offset = limitOfUsersPerPage * (page - 1);
@@ -77,7 +77,7 @@ exports.listUsers = (req, res, next) => {
     .getAllUsersWithPagination(limitOfUsersPerPage, offset)
     .then(users => {
       const pages = Math.ceil(users.count / limitOfUsersPerPage);
-      res.status(200).json({ users: users.rows, count: users.count, pages });
+      res.json({ users: users.rows, count: users.count, pages });
     })
     .catch(next);
 };
