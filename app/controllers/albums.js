@@ -28,6 +28,7 @@ exports.buyAlbum = (req, res, next) => {
           if (localAlbum) throw errors.albumAlreadyHasOwnerUser;
 
           // The album is not in the database, so now it is saved
+          album.userId = req.body.userId;
           return albumService.createAlbum(album);
         })
         .then(() => res.sendStatus(200));
