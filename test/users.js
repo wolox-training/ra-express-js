@@ -3,7 +3,8 @@ const chai = require('chai'),
   server = require('./../app'),
   { User } = require('../app/models'),
   enums = require('../app/enums'),
-  generics = require('./generics');
+  generics = require('./generics'),
+  jwtUtils = require('../app/jwt_utils');
 
 chai.should();
 
@@ -311,7 +312,7 @@ describe('/users GET', () => {
       .then(user => {
         return User.create(generics.someUser2);
       })
-      .then(generics.signIn)
+      .then(jwtUtils.generateToken)
       .then(token => {
         return chai
           .request(server)
@@ -360,7 +361,7 @@ describe('/users GET', () => {
       .then(user => {
         return User.create(generics.someUser2);
       })
-      .then(generics.signIn)
+      .then(jwtUtils.generateToken)
       .then(token => {
         return chai
           .request(server)
@@ -386,34 +387,11 @@ describe('/users GET', () => {
 
   it('should fail getting users, missing page', () => {
     return User.create(generics.someUser)
-      .then(generics.signIn)
+      .then(jwtUtils.generateToken)
       .then(token => {
         return chai
           .request(server)
           .get('/users')
-          .send({
-            token
-          });
-      })
-      .catch(err => {
-        err.should.have.status(400);
-        err.response.should.be.json;
-        err.response.body.should.have.property('message');
-        err.response.body.should.have.property('internal_code');
-        chai.expect(err.response.body.internal_code).to.equal('missing_parameters');
-      });
-  });
-
-  it('should fail getting users, missing page (is not an integer)', () => {
-    const page = 'hi';
-
-    return User.create(generics.someUser)
-      .then(generics.signIn)
-      .then(token => {
-        return chai
-          .request(server)
-          .get('/users')
-          .query({ page })
           .send({
             token
           });
@@ -433,7 +411,7 @@ describe('/admin/users POST', () => {
     // The users is created manually using the model to not depend on the
     // Sign Up endpoint implementation
     return User.create(generics.someAdministratorUser)
-      .then(generics.signIn)
+      .then(jwtUtils.generateToken)
       .then(token => {
         return chai
           .request(server)
@@ -469,7 +447,7 @@ describe('/admin/users POST', () => {
       .then(regularUser => {
         return User.create(generics.someAdministratorUser);
       })
-      .then(generics.signIn)
+      .then(jwtUtils.generateToken)
       .then(token => {
         return chai
           .request(server)
@@ -514,7 +492,7 @@ describe('/admin/users POST', () => {
 
   it('should fail creating administrator user, no administrator token is provided', () => {
     return User.create(generics.someUser)
-      .then(generics.signIn)
+      .then(jwtUtils.generateToken)
       .then(token => {
         return chai
           .request(server)

@@ -1,20 +1,6 @@
-const jwt = require('jsonwebtoken'),
-  config = require('../config'),
-  enums = require('../app/enums');
+const enums = require('../app/enums');
 
 module.exports = {
-  signIn: user => {
-    return new Promise((resolve, reject) => {
-      jwt.sign(
-        { id: user.id, email: user.email, permission: user.permission },
-        config.common.session.secret,
-        (err, token) => {
-          resolve(token);
-        }
-      );
-    });
-  },
-
   someUser: {
     firstName: 'Federico',
     lastName: 'Diaz',

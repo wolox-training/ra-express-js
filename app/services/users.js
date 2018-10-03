@@ -26,9 +26,11 @@ exports.getAllUsersWithPagination = (limit, offset) => {
   });
 };
 
-exports.getUsersByFilter = filter => {
-  return User.findAll({
-    where: filter
+exports.getUserByEmail = email => {
+  return User.findOne({
+    where: {
+      email
+    }
   }).catch(error => {
     throw errors.databaseError(error.message);
   });

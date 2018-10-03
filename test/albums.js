@@ -5,7 +5,8 @@ const chai = require('chai'),
   albumsMocker = require('./mockers/albums'),
   server = require('./../app'),
   generics = require('./generics'),
-  { User } = require('../app/models');
+  { User } = require('../app/models'),
+  jwtUtils = require('../app/jwt_utils');
 
 chai.should();
 
@@ -17,7 +18,7 @@ describe('/albums GET', () => {
   });
   it('should get all albums, token is provided', () => {
     return User.create(generics.someUser)
-      .then(generics.signIn)
+      .then(jwtUtils.generateToken)
       .then(token => {
         return chai
           .request(server)
