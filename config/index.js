@@ -53,7 +53,6 @@ const config = {
       uri: 'https://jsonplaceholder.typicode.com/albums'
     },
     port: process.env.PORT
-
   }
 };
 
