@@ -60,7 +60,7 @@ Here is an example snippet:
 ```
 const logger = require('/app/logger');
 ...
-if (error) { 
+if (error) {
     logger.error('There is an error);
 } else {
     logger.info('There is no error);
@@ -81,6 +81,8 @@ Documentation will be served at `/docs`. Remember using [dictum.js](http://www.g
 #### Heroku
 Pushing the desired branch to heroku should be enough.
 For more information check: https://devcenter.heroku.com/articles/getting-started-with-nodejs#define-a-procfile.
+
+Heroku URL: https://ra-express-js.herokuapp.com/
 
 ## About
 
