@@ -31,14 +31,9 @@ exports.createUser = (req, res, next) => {
   const error = validateUserCreation(req.body);
   if (error) return next(error);
 
-  const filter = {
-    email: req.body.email
-  };
-
   userService
-    .getUsersByFilter(filter)
-    .then(users => {
-      const [user] = users;
+    .getUserByEmail(req.body.email)
+    .then(user => {
       if (user) throw errors.emailAlreadyInUse;
       return userService.createUser(req.body);
     })
@@ -68,13 +63,8 @@ exports.logIn = async (req, res, next) => {
 
   if (!emailIsValid(req.body.email)) return next(errors.invalidUserEmail);
 
-  const filter = {
-    email: req.body.email
-  };
-
   try {
-    const users = await userService.getUsersByFilter(filter);
-    const [user] = users;
+    const user = await userService.getUserByEmail(req.body.email);
     if (!user) throw errors.emailNotMatchAnyAccount;
 
     const match = await userService.userPasswordMatch(req.body.password, user.password);
@@ -90,7 +80,7 @@ exports.logIn = async (req, res, next) => {
 };
 
 exports.listUsers = (req, res, next) => {
-  if (!req.query.page || !Number.isInteger(Number(req.query.page))) return next(errors.missingParameters);
+  if (!req.query.page) return next(errors.missingParameters);
 
   const page = req.query.page;
   const offset = limitOfUsersPerPage * (page - 1);
@@ -108,48 +98,31 @@ exports.createAdminUser = (req, res, next) => {
   const err = validateUserCreation(req.body);
   if (err) return next(err);
 
-  const filter = {
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    email: req.body.email
-  };
-
   userService
-    .getUsersByFilter(filter)
-    .then(users => {
-      const [user] = users;
+    .getUserByEmail(req.body.email)
+    .then(user => {
       if (user) {
-        user.permission = enums.PERMISSION.ADMINISTRATOR;
-        return user
-          .save()
-          .then(() => res.sendStatus(200))
-          .catch(error => {
-            throw errors.databaseError(error.message);
-          });
-      }
+        if (user.firstName === req.body.firstName && user.lastName === req.body.lastName) {
+          user.permission = enums.PERMISSION.ADMINISTRATOR;
+          return user
+            .save()
+            .then(() => res.sendStatus(200))
+            .catch(error => {
+              throw errors.databaseError(error.message);
+            });
+        }
 
-      const emailFilter = {
-        email: req.body.email
-      };
-
-      return userService
-        .getUsersByFilter(emailFilter)
-        .then(usersWithEmail => {
-          const [userWithEmail] = usersWithEmail;
-          // If there is no user matching with the body parameters, it is
-          // checked that the email is not in use in order to create properly
-          // the new user
-          if (userWithEmail) throw errors.emailAlreadyInUse;
-
-          // If the email is available, a new administrator user is created
-          // with the body parameters
-          req.body.permission = enums.PERMISSION.ADMINISTRATOR;
-          return userService.createUser(req.body);
-        })
-        .then(newUser => {
+        // Email is not available for the new user
+        throw errors.emailAlreadyInUse;
+      } else {
+        // If the email is available, a new administrator user is created
+        // with the body parameters
+        req.body.permission = enums.PERMISSION.ADMINISTRATOR;
+        return userService.createUser(req.body).then(newUser => {
           logger.info(User.getAfterCreationMessage(newUser));
           res.sendStatus(200);
         });
+      }
     })
     .catch(next);
 };

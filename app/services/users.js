@@ -33,3 +33,13 @@ exports.getUsersByFilter = filter => {
     throw errors.databaseError(error.message);
   });
 };
+
+exports.getUserByEmail = email => {
+  return User.findOne({
+    where: {
+      email
+    }
+  }).catch(error => {
+    throw errors.databaseError(error.message);
+  });
+};
