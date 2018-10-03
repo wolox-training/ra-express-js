@@ -2,8 +2,7 @@ const chai = require('chai'),
   dictum = require('dictum.js'),
   server = require('./../app'),
   { User } = require('../app/models'),
-  jwt = require('jsonwebtoken'),
-  config = require('../config');
+  jwtUtils = require('../app/jwt_utils');
 
 chai.should();
 
@@ -315,14 +314,6 @@ describe('/users/sessions POST', () => {
   });
 });
 
-const signIn = user => {
-  return new Promise((resolve, reject) => {
-    jwt.sign({ id: user.id, email: user.email }, config.common.session.secret, (err, token) => {
-      resolve(token);
-    });
-  });
-};
-
 describe('/users GET', () => {
   it('should pass getting users, token is provided', () => {
     const page = 1;
@@ -333,7 +324,7 @@ describe('/users GET', () => {
       .then(user => {
         return User.create(someUser2);
       })
-      .then(signIn)
+      .then(jwtUtils.generateToken)
       .then(token => {
         return chai
           .request(server)
@@ -382,7 +373,7 @@ describe('/users GET', () => {
       .then(user => {
         return User.create(someUser2);
       })
-      .then(signIn)
+      .then(jwtUtils.generateToken)
       .then(token => {
         return chai
           .request(server)
@@ -408,7 +399,7 @@ describe('/users GET', () => {
 
   it('should fail getting users, missing page', () => {
     return User.create(someUser)
-      .then(signIn)
+      .then(jwtUtils.generateToken)
       .then(token => {
         return chai
           .request(server)
