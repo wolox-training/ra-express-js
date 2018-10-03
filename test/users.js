@@ -9,8 +9,6 @@ chai.should();
 
 describe('/users POST', () => {
   it('should pass sign up, parameters are valid', () => {
-    let response;
-
     return chai
       .request(server)
       .post('/users')
@@ -22,20 +20,18 @@ describe('/users POST', () => {
       })
       .then(res => {
         res.should.have.status(200);
-        response = res;
         return User.find({
           where: {
             firstName: 'Rodrigo',
             lastName: 'Aparicio',
             email: 'rodrigo.aparicio@wolox.com.ar'
           }
+        }).then(user => {
+          chai.expect(user).to.be.a('object');
+          chai.expect(user.password).to.not.equal('12345678a');
+          chai.expect(user.password).to.be.a('string');
+          dictum.chai(res, 'a new user is created with the parameters sent');
         });
-      })
-      .then(user => {
-        chai.expect(user).to.be.a('object');
-        chai.expect(user.password).to.not.equal('12345678a');
-        chai.expect(user.password).to.be.a('string');
-        dictum.chai(response, 'a new user is created with the parameters sent');
       });
   });
 
