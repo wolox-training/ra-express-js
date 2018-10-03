@@ -309,9 +309,8 @@ describe('/users GET', () => {
     // Sign Up endpoint implementation
     return User.create(generics.someUser)
       .then(user => {
-        return User.create(generics.someUser2);
+        return generics.createUserAndGenerateToken(enums.PERMISSION.REGULAR);
       })
-      .then(generics.signIn)
       .then(token => {
         return chai
           .request(server)
@@ -358,9 +357,8 @@ describe('/users GET', () => {
     // Sign Up endpoint implementation
     return User.create(generics.someUser)
       .then(user => {
-        return User.create(generics.someUser2);
+        return generics.createUserAndGenerateToken(enums.PERMISSION.REGULAR);
       })
-      .then(generics.signIn)
       .then(token => {
         return chai
           .request(server)
@@ -385,35 +383,12 @@ describe('/users GET', () => {
   });
 
   it('should fail getting users, missing page', () => {
-    return User.create(generics.someUser)
-      .then(generics.signIn)
+    return generics
+      .createUserAndGenerateToken(enums.PERMISSION.REGULAR)
       .then(token => {
         return chai
           .request(server)
           .get('/users')
-          .send({
-            token
-          });
-      })
-      .catch(err => {
-        err.should.have.status(400);
-        err.response.should.be.json;
-        err.response.body.should.have.property('message');
-        err.response.body.should.have.property('internal_code');
-        chai.expect(err.response.body.internal_code).to.equal('missing_parameters');
-      });
-  });
-
-  it('should fail getting users, missing page (is not an integer)', () => {
-    const page = 'hi';
-
-    return User.create(generics.someUser)
-      .then(generics.signIn)
-      .then(token => {
-        return chai
-          .request(server)
-          .get('/users')
-          .query({ page })
           .send({
             token
           });
@@ -432,8 +407,8 @@ describe('/admin/users POST', () => {
   it('should pass creating administrator user, administrator token is provided and parameters are valid', () => {
     // The users is created manually using the model to not depend on the
     // Sign Up endpoint implementation
-    return User.create(generics.someAdministratorUser)
-      .then(generics.signIn)
+    return generics
+      .createUserAndGenerateToken(enums.PERMISSION.ADMINISTRATOR)
       .then(token => {
         return chai
           .request(server)
@@ -467,9 +442,8 @@ describe('/admin/users POST', () => {
     // Sign Up endpoint implementation
     return User.create(generics.someUser)
       .then(regularUser => {
-        return User.create(generics.someAdministratorUser);
+        return generics.createUserAndGenerateToken(enums.PERMISSION.ADMINISTRATOR);
       })
-      .then(generics.signIn)
       .then(token => {
         return chai
           .request(server)
@@ -513,13 +487,13 @@ describe('/admin/users POST', () => {
   });
 
   it('should fail creating administrator user, no administrator token is provided', () => {
-    return User.create(generics.someUser)
-      .then(generics.signIn)
+    return generics
+      .createUserAndGenerateToken(enums.PERMISSION.REGULAR)
       .then(token => {
         return chai
           .request(server)
           .post('/admin/users')
-          .send({ token }, generics.someUser2);
+          .send({ token }, generics.someUser);
       })
       .catch(err => {
         err.should.have.status(403);

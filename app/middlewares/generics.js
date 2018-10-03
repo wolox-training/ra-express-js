@@ -1,8 +1,7 @@
 const logger = require('../logger'),
-  jwt = require('jsonwebtoken'),
   errors = require('../errors'),
-  enums = require('../enums'),
-  config = require('../../config');
+  config = require('../../config'),
+  jwtUtils = require('../jwt_utils');
 
 exports.logRequestInformation = (req, res, next) => {
   logger.info(`A new request received at ${new Date()}`);
@@ -15,30 +14,27 @@ exports.verifyToken = (req, res, next) => {
   const token = req.body.token || req.query.token || req.headers[config.common.session.header_name];
 
   if (token) {
-    return jwt.verify(token, config.common.session.secret, (err, decoded) => {
-      if (err) return next(errors.defaultError(err.message));
-
-      req.body.userId = decoded.id;
-      return next();
-    });
+    return jwtUtils
+      .verifyToken(token)
+      .then(userId => {
+        req.body.userId = userId;
+        return next();
+      })
+      .catch(next);
   }
 
-  return next(errors.noTokenProvided);
+  next(errors.noTokenProvided);
 };
 
 exports.verifyAdministratorToken = (req, res, next) => {
   const token = req.body.token || req.query.token || req.headers[config.common.session.header_name];
 
   if (token) {
-    return jwt.verify(token, config.common.session.secret, (err, decoded) => {
-      if (err) return next(errors.defaultError(err.message));
-
-      if (decoded.permission !== enums.PERMISSION.ADMINISTRATOR)
-        return next(errors.noAdministratorPermission);
-
-      return next();
-    });
+    return jwtUtils
+      .verifyAdministratorToken(token)
+      .then(() => next())
+      .catch(next);
   }
 
-  return next(errors.noTokenProvided);
+  next(errors.noTokenProvided);
 };

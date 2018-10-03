@@ -4,7 +4,7 @@ const albumService = require('../services/albums'),
 exports.getAllAlbums = (req, res, next) => {
   albumService
     .getAllAlbums()
-    .then(response => res.json({ albums: response }))
+    .then(albums => res.json({ albums }))
     .catch(next);
 };
 

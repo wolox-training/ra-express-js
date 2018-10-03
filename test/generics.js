@@ -1,20 +1,23 @@
-const jwt = require('jsonwebtoken'),
-  config = require('../config'),
-  enums = require('../app/enums');
+const enums = require('../app/enums'),
+  { User } = require('../app/models'),
+  jwtUtils = require('../app/jwt_utils');
+
+const defaultAdministratorUserForCreation = {
+  firstName: 'Matias',
+  lastName: 'Perez',
+  email: 'matias.perez@wolox.com.ar',
+  password: '12345678a',
+  permission: enums.PERMISSION.ADMINISTRATOR
+};
+
+const defaultRegularUserForCreation = {
+  firstName: 'Tomas',
+  lastName: 'Gomez',
+  email: 'tomas.gomez@wolox.com.ar',
+  password: '12345678a'
+};
 
 module.exports = {
-  signIn: user => {
-    return new Promise((resolve, reject) => {
-      jwt.sign(
-        { id: user.id, email: user.email, permission: user.permission },
-        config.common.session.secret,
-        (err, token) => {
-          resolve(token);
-        }
-      );
-    });
-  },
-
   someUser: {
     firstName: 'Federico',
     lastName: 'Diaz',
@@ -22,18 +25,21 @@ module.exports = {
     password: '12345678a'
   },
 
-  someUser2: {
-    firstName: 'Tomas',
-    lastName: 'Gomez',
-    email: 'tomas.gomez@wolox.com.ar',
-    password: '12345678a'
+  createUserAndGenerateToken: userType => {
+    let user;
+
+    switch (userType) {
+      case enums.PERMISSION.REGULAR:
+        user = defaultRegularUserForCreation;
+        break;
+      case enums.PERMISSION.ADMINISTRATOR:
+        user = defaultAdministratorUserForCreation;
+        break;
+    }
+
+    return User.create(user).then(jwtUtils.generateToken);
   },
 
-  someAdministratorUser: {
-    firstName: 'Matias',
-    lastName: 'Perez',
-    email: 'matias.perez@wolox.com.ar',
-    password: '12345678a',
-    permission: enums.PERMISSION.ADMINISTRATOR
-  }
+  defaultRegularUserForCreation,
+  defaultAdministratorUserForCreation
 };

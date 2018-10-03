@@ -6,7 +6,8 @@ const chai = require('chai'),
   server = require('./../app'),
   generics = require('./generics'),
   { User } = require('../app/models'),
-  { Album } = require('../app/models');
+  { Album } = require('../app/models'),
+  enums = require('../app/enums');
 
 chai.should();
 
@@ -17,8 +18,8 @@ describe('/albums GET', () => {
       .reply(200, albumsMocker.albums);
   });
   it('should get all albums, token is provided', () => {
-    return User.create(generics.someUser)
-      .then(generics.signIn)
+    return generics
+      .createUserAndGenerateToken(enums.PERMISSION.REGULAR)
       .then(token => {
         return chai
           .request(server)
@@ -58,8 +59,8 @@ describe('/albums/:id POST', () => {
   it('should buy album, album is available and token is provided', () => {
     const [mockedAlbum] = albumsMocker.albums;
 
-    return User.create(generics.someUser)
-      .then(generics.signIn)
+    return generics
+      .createUserAndGenerateToken(enums.PERMISSION.REGULAR)
       .then(token => {
         nock(`${config.common.albumsApi.uri}/${mockedAlbum.id}`)
           .get('')
@@ -77,9 +78,9 @@ describe('/albums/:id POST', () => {
         }).then(album => {
           // Search for the user id in order to compare it with album.userId
           const userFilter = {
-            firstName: generics.someUser.firstName,
-            lastName: generics.someUser.lastName,
-            email: generics.someUser.email
+            firstName: generics.defaultRegularUserForCreation.firstName,
+            lastName: generics.defaultRegularUserForCreation.lastName,
+            email: generics.defaultRegularUserForCreation.email
           };
 
           return User.find({
