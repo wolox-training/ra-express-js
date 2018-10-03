@@ -73,7 +73,7 @@ exports.logIn = async (req, res, next) => {
     const token = await generateToken(user);
 
     logger.info(User.getAfterLoggingInMessage(user));
-    res.status(200).json({ token });
+    res.json({ token });
   } catch (err) {
     next(err);
   }
@@ -89,7 +89,7 @@ exports.listUsers = (req, res, next) => {
     .getAllUsersWithPagination(limitOfUsersPerPage, offset)
     .then(users => {
       const pages = Math.ceil(users.count / limitOfUsersPerPage);
-      res.status(200).json({ users: users.rows, count: users.count, pages });
+      res.json({ users: users.rows, count: users.count, pages });
     })
     .catch(next);
 };
