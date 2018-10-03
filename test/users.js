@@ -1,8 +1,8 @@
 const chai = require('chai'),
   dictum = require('dictum.js'),
   server = require('./../app'),
-  { User } = require('../app/models'), 
-  enums = require('../app/enums'), 
+  { User } = require('../app/models'),
+  enums = require('../app/enums'),
   jwtUtils = require('../app/jwt_utils');
 
 chai.should();
@@ -432,7 +432,7 @@ describe('/admin/users POST', () => {
     // The users is created manually using the model to not depend on the
     // Sign Up endpoint implementation
     return User.create(someAdministratorUser)
-      .then(signIn)
+      .then(jwtUtils.generateToken)
       .then(token => {
         return chai
           .request(server)
@@ -468,7 +468,7 @@ describe('/admin/users POST', () => {
       .then(regularUser => {
         return User.create(someAdministratorUser);
       })
-      .then(signIn)
+      .then(jwtUtils.generateToken)
       .then(token => {
         return chai
           .request(server)
@@ -513,7 +513,7 @@ describe('/admin/users POST', () => {
 
   it('should fail creating administrator user, no administrator token is provided', () => {
     return User.create(someUser)
-      .then(signIn)
+      .then(jwtUtils.generateToken)
       .then(token => {
         return chai
           .request(server)

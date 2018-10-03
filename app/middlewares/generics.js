@@ -1,6 +1,5 @@
 const logger = require('../logger'),
   errors = require('../errors'),
-  enums = require('../enums'),
   config = require('../../config'),
   jwtUtils = require('../jwt_utils');
 
@@ -28,16 +27,11 @@ exports.verifyAdministratorToken = (req, res, next) => {
   const token = req.body.token || req.query.token || req.headers[config.common.session.header_name];
 
   if (token) {
-    return jwt.verify(token, config.common.session.secret, (err, decoded) => {
-      if (err) return next(errors.defaultError(err.message));
-
-      if (decoded.permission !== enums.PERMISSION.ADMINISTRATOR) {
-        return next(errors.noAdministratorPermission);
-      }
-
-      return next();
-    });
+    return jwtUtils
+      .verifyAdministratorToken(token)
+      .then(() => next())
+      .catch(next);
   }
 
-  return next(errors.noTokenProvided);
+  next(errors.noTokenProvided);
 };

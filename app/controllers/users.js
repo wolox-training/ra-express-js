@@ -2,7 +2,7 @@ const { User } = require('../models/'),
   userService = require('../services/users'),
   errors = require('../errors'),
   logger = require('../logger'),
-  enums = require('../enums'),  
+  enums = require('../enums'),
   jwtUtils = require('../jwt_utils');
 
 const validEmailPattern = /^[a-zA-Z0-9_.+-]+@wolox\.com\.ar$/g,
