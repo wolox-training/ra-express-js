@@ -2,9 +2,8 @@ const { User } = require('../models/'),
   userService = require('../services/users'),
   errors = require('../errors'),
   logger = require('../logger'),
-  jwt = require('../../node_modules/jsonwebtoken'),
-  enums = require('../enums'),
-  config = require('../../config');
+  enums = require('../enums'),  
+  jwtUtils = require('../jwt_utils');
 
 const validEmailPattern = /^[a-zA-Z0-9_.+-]+@wolox\.com\.ar$/g,
   validPasswordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/g,
@@ -44,20 +43,6 @@ exports.createUser = (req, res, next) => {
     .catch(next);
 };
 
-const generateToken = user => {
-  return new Promise((resolve, reject) => {
-    jwt.sign(
-      { id: user.id, email: user.email, permission: user.permission },
-      config.common.session.secret,
-      (err, token) => {
-        if (err) return reject(errors.defaultError(err.message));
-
-        resolve(token);
-      }
-    );
-  });
-};
-
 exports.logIn = async (req, res, next) => {
   if (!req.body.email || !req.body.password) return next(errors.missingParameters);
 
@@ -70,7 +55,7 @@ exports.logIn = async (req, res, next) => {
     const match = await userService.userPasswordMatch(req.body.password, user.password);
     if (!match) throw errors.wrongPassword;
 
-    const token = await generateToken(user);
+    const token = await jwtUtils.generateToken(user);
 
     logger.info(User.getAfterLoggingInMessage(user));
     res.json({ token });
