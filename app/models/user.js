@@ -1,6 +1,6 @@
 'use strict';
 
-const bcrypt = require('../../node_modules/bcryptjs'),
+const bcrypt = require('bcryptjs'),
   errors = require('../errors');
 
 const saltRounds = 10;

@@ -1,6 +1,6 @@
 const { User } = require('../models/'),
   errors = require('../errors'),
-  bcrypt = require('../../node_modules/bcryptjs');
+  bcrypt = require('bcryptjs');
 
 exports.createUser = userParameters => {
   return User.create({

@@ -1,6 +1,6 @@
 const chai = require('chai'),
   dictum = require('dictum.js'),
-  nock = require('../node_modules/nock'),
+  nock = require('nock'),
   config = require('../config'),
   albumsMocker = require('./mockers/albums'),
   server = require('./../app'),
