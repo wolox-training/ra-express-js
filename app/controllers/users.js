@@ -99,15 +99,16 @@ exports.createAdminUser = (req, res, next) => {
 
         // Email is not available for the new user
         throw errors.emailAlreadyInUse;
-      } else {
-        // If the email is available, a new administrator user is created
-        // with the body parameters
-        req.body.permission = enums.PERMISSION.ADMINISTRATOR;
-        return userService.createUser(req.body).then(newUser => {
+      }
+
+      // If the email is available, a new administrator user is created
+      // with the body parameters
+      return userService
+        .createUser({ ...req.body, permission: enums.PERMISSION.ADMINISTRATOR })
+        .then(newUser => {
           logger.info(User.getAfterCreationMessage(newUser));
           res.sendStatus(200);
         });
-      }
     })
     .catch(next);
 };

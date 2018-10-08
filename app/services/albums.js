@@ -1,5 +1,5 @@
 const config = require('../../config'),
-  fetch = require('../../node_modules/node-fetch'),
+  fetch = require('node-fetch'),
   errors = require('../errors'),
   { Album } = require('../models/');
 
