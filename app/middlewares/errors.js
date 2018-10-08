@@ -11,6 +11,7 @@ const statusCodes = {
   [errors.EMAIL_NOT_MATCH_ANY_ACCOUNT]: 400,
   [errors.WRONG_PASSWORD]: 400,
   [errors.NO_TOKEN_PROVIDED]: 403,
+  [errors.NO_ADMINISTRATOR_PERMISSION]: 403,
   [errors.BOOK_NOT_FOUND]: 404,
   [errors.SAVING_ERROR]: 400,
   [errors.DATABASE_ERROR]: 503,

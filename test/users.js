@@ -2,6 +2,7 @@ const chai = require('chai'),
   dictum = require('dictum.js'),
   server = require('./../app'),
   { User } = require('../app/models'),
+  enums = require('../app/enums'),
   jwtUtils = require('../app/jwt_utils');
 
 chai.should();
@@ -18,6 +19,14 @@ const someUser2 = {
   lastName: 'Gomez',
   email: 'tomas.gomez@wolox.com.ar',
   password: '12345678a'
+};
+
+const someAdministratorUser = {
+  firstName: 'Matias',
+  lastName: 'Perez',
+  email: 'matias.perez@wolox.com.ar',
+  password: '12345678a',
+  permission: enums.PERMISSION.ADMINISTRATOR
 };
 
 describe('/users POST', () => {
@@ -410,6 +419,109 @@ describe('/users GET', () => {
         err.response.body.should.have.property('message');
         err.response.body.should.have.property('internal_code');
         chai.expect(err.response.body.internal_code).to.equal('missing_parameters');
+      });
+  });
+});
+
+describe('/admin/users POST', () => {
+  it('should pass creating administrator user, administrator token is provided and parameters are valid', () => {
+    // The users is created manually using the model to not depend on the
+    // Sign Up endpoint implementation
+    return User.create(someAdministratorUser)
+      .then(jwtUtils.generateToken)
+      .then(token => {
+        return chai
+          .request(server)
+          .post('/admin/users')
+          .send({
+            token,
+            firstName: 'Rodrigo',
+            lastName: 'Aparicio',
+            email: 'rodrigo.aparicio@wolox.com.ar',
+            password: '12345678a'
+          });
+      })
+      .then(res => {
+        res.should.have.status(200);
+        return User.find({
+          where: {
+            firstName: 'Rodrigo',
+            lastName: 'Aparicio',
+            email: 'rodrigo.aparicio@wolox.com.ar'
+          }
+        }).then(user => {
+          chai.expect(user).to.be.a('object');
+          chai.expect(user.permission).to.equal(enums.PERMISSION.ADMINISTRATOR);
+          dictum.chai(res, 'a new user with administrator permission is created with the parameters sent');
+        });
+      });
+  });
+
+  it('should pass updating regular to administrator user, administrator token is provided and parameters are valid', () => {
+    // The users are created manually using the model to not depend on the
+    // Sign Up endpoint implementation
+    return User.create(someUser)
+      .then(regularUser => {
+        return User.create(someAdministratorUser);
+      })
+      .then(jwtUtils.generateToken)
+      .then(token => {
+        return chai
+          .request(server)
+          .post('/admin/users')
+          .send({
+            token,
+            firstName: someUser.firstName,
+            lastName: someUser.lastName,
+            email: someUser.email,
+            password: someUser.password
+          });
+      })
+      .then(res => {
+        res.should.have.status(200);
+        return User.find({
+          where: {
+            firstName: someUser.firstName,
+            lastName: someUser.lastName,
+            email: someUser.email
+          }
+        }).then(user => {
+          chai.expect(user).to.be.a('object');
+          chai.expect(user.permission).to.equal(enums.PERMISSION.ADMINISTRATOR);
+          dictum.chai(res, 'an user with regular permission now has administrator permission');
+        });
+      });
+  });
+
+  it('should fail creating administrator user, no token is provided', () => {
+    return chai
+      .request(server)
+      .post('/admin/users')
+      .send(someUser)
+      .catch(err => {
+        err.should.have.status(403);
+        err.response.should.be.json;
+        err.response.body.should.have.property('message');
+        err.response.body.should.have.property('internal_code');
+        chai.expect(err.response.body.internal_code).to.equal('no_token_provided');
+      });
+  });
+
+  it('should fail creating administrator user, no administrator token is provided', () => {
+    return User.create(someUser)
+      .then(jwtUtils.generateToken)
+      .then(token => {
+        return chai
+          .request(server)
+          .post('/admin/users')
+          .send({ token }, someUser2);
+      })
+      .catch(err => {
+        err.should.have.status(403);
+        err.response.should.be.json;
+        err.response.body.should.have.property('message');
+        err.response.body.should.have.property('internal_code');
+        chai.expect(err.response.body.internal_code).to.equal('no_administrator_permission');
       });
   });
 });

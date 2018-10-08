@@ -2,6 +2,7 @@ const { User } = require('../models/'),
   userService = require('../services/users'),
   errors = require('../errors'),
   logger = require('../logger'),
+  enums = require('../enums'),
   jwtUtils = require('../jwt_utils');
 
 const validEmailPattern = /^[a-zA-Z0-9_.+-]+@wolox\.com\.ar$/g,
@@ -15,12 +16,19 @@ const emailIsValid = email => email.match(validEmailPattern);
 
 const passwordIsValid = password => password.match(validPasswordPattern);
 
+const validateUserCreation = parameters => {
+  if (!obligatoryParametersWereReceived(parameters)) return errors.missingParameters;
+
+  if (!emailIsValid(parameters.email)) return errors.invalidUserEmail;
+
+  if (!passwordIsValid(parameters.password)) return errors.invalidUserPassword;
+
+  return null;
+};
+
 exports.createUser = (req, res, next) => {
-  if (!obligatoryParametersWereReceived(req.body)) return next(errors.missingParameters);
-
-  if (!emailIsValid(req.body.email)) return next(errors.invalidUserEmail);
-
-  if (!passwordIsValid(req.body.password)) return next(errors.invalidUserPassword);
+  const error = validateUserCreation(req.body);
+  if (error) return next(error);
 
   userService
     .getUserByEmail(req.body.email)
@@ -67,6 +75,40 @@ exports.listUsers = (req, res, next) => {
     .then(users => {
       const pages = Math.ceil(users.count / limitOfUsersPerPage);
       res.json({ users: users.rows, count: users.count, pages });
+    })
+    .catch(next);
+};
+
+exports.createAdminUser = (req, res, next) => {
+  const err = validateUserCreation(req.body);
+  if (err) return next(err);
+
+  userService
+    .getUserByEmail(req.body.email)
+    .then(user => {
+      if (user) {
+        if (user.firstName === req.body.firstName && user.lastName === req.body.lastName) {
+          user.permission = enums.PERMISSION.ADMINISTRATOR;
+          return user
+            .save()
+            .then(() => res.sendStatus(200))
+            .catch(error => {
+              throw errors.databaseError(error.message);
+            });
+        }
+
+        // Email is not available for the new user
+        throw errors.emailAlreadyInUse;
+      }
+
+      // If the email is available, a new administrator user is created
+      // with the body parameters
+      return userService
+        .createUser({ ...req.body, permission: enums.PERMISSION.ADMINISTRATOR })
+        .then(newUser => {
+          logger.info(User.getAfterCreationMessage(newUser));
+          res.sendStatus(200);
+        });
     })
     .catch(next);
 };

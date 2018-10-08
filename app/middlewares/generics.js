@@ -22,3 +22,16 @@ exports.verifyToken = (req, res, next) => {
 
   next(errors.noTokenProvided);
 };
+
+exports.verifyAdministratorToken = (req, res, next) => {
+  const token = req.body.token || req.query.token || req.headers[config.common.session.header_name];
+
+  if (token) {
+    return jwtUtils
+      .verifyAdministratorToken(token)
+      .then(() => next())
+      .catch(next);
+  }
+
+  next(errors.noTokenProvided);
+};
