@@ -2,14 +2,7 @@ const enums = require('../app/enums'),
   { User } = require('../app/models'),
   jwtUtils = require('../app/jwt_utils');
 
-const someUser = {
-  firstName: 'Federico',
-  lastName: 'Diaz',
-  email: 'federico.diaz@wolox.com.ar',
-  password: '12345678a'
-};
-
-const someAdministratorUser = {
+const defaultAdministratorUserForCreation = {
   firstName: 'Matias',
   lastName: 'Perez',
   email: 'matias.perez@wolox.com.ar',
@@ -17,7 +10,7 @@ const someAdministratorUser = {
   permission: enums.PERMISSION.ADMINISTRATOR
 };
 
-const someUser2 = {
+const defaultRegularUserForCreation = {
   firstName: 'Tomas',
   lastName: 'Gomez',
   email: 'tomas.gomez@wolox.com.ar',
@@ -25,22 +18,28 @@ const someUser2 = {
 };
 
 module.exports = {
-  someUser,
-  someUser2,
-  someAdministratorUser,
+  someUser: {
+    firstName: 'Federico',
+    lastName: 'Diaz',
+    email: 'federico.diaz@wolox.com.ar',
+    password: '12345678a'
+  },
 
   createUserAndGenerateToken: userType => {
     let user;
 
     switch (userType) {
       case enums.PERMISSION.REGULAR:
-        user = someUser2;
+        user = defaultRegularUserForCreation;
         break;
       case enums.PERMISSION.ADMINISTRATOR:
-        user = someAdministratorUser;
+        user = defaultAdministratorUserForCreation;
         break;
     }
 
     return User.create(user).then(jwtUtils.generateToken);
-  }
+  },
+
+  defaultRegularUserForCreation,
+  defaultAdministratorUserForCreation
 };

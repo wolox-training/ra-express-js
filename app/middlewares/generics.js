@@ -16,7 +16,10 @@ exports.verifyToken = (req, res, next) => {
   if (token) {
     return jwtUtils
       .verifyToken(token)
-      .then(() => next())
+      .then(userId => {
+        req.body.userId = userId;
+        return next();
+      })
       .catch(next);
   }
 

@@ -8,7 +8,7 @@ exports.verifyToken = token => {
     jwt.verify(token, config.common.session.secret, (err, decoded) => {
       if (err) return reject(errors.defaultError(err.message));
 
-      resolve();
+      resolve(decoded.id);
     });
   });
 };

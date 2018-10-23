@@ -489,7 +489,7 @@ describe('/admin/users POST', () => {
         return chai
           .request(server)
           .post('/admin/users')
-          .send({ token }, generics.someUser2);
+          .send({ token }, generics.someUser);
       })
       .catch(err => {
         err.should.have.status(403);

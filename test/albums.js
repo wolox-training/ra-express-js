@@ -6,7 +6,8 @@ const chai = require('chai'),
   server = require('./../app'),
   generics = require('./generics'),
   { User } = require('../app/models'),
-  jwtUtils = require('../app/jwt_utils');
+  { Album } = require('../app/models'),
+  enums = require('../app/enums');
 
 chai.should();
 
@@ -17,8 +18,8 @@ describe('/albums GET', () => {
       .reply(200, albumsMocker.albums);
   });
   it('should get all albums, token is provided', () => {
-    return User.create(generics.someUser)
-      .then(jwtUtils.generateToken)
+    return generics
+      .createUserAndGenerateToken(enums.PERMISSION.REGULAR)
       .then(token => {
         return chai
           .request(server)
@@ -50,6 +51,48 @@ describe('/albums GET', () => {
         err.response.body.should.have.property('message');
         err.response.body.should.have.property('internal_code');
         chai.expect(err.response.body.internal_code).to.equal('no_token_provided');
+      });
+  });
+});
+
+describe('/albums/:id POST', () => {
+  it('should buy album, album is available and token is provided', () => {
+    const [mockedAlbum] = albumsMocker.albums;
+
+    return generics
+      .createUserAndGenerateToken(enums.PERMISSION.REGULAR)
+      .then(token => {
+        nock(`${config.common.albumsApi.uri}/${mockedAlbum.id}`)
+          .get('')
+          .reply(200, mockedAlbum);
+
+        return chai
+          .request(server)
+          .post(`/albums/${mockedAlbum.id}`)
+          .send({ token });
+      })
+      .then(res => {
+        res.should.have.status(200);
+        return Album.find({
+          where: mockedAlbum
+        }).then(album => {
+          // Search for the user id in order to compare it with album.userId
+          const userFilter = {
+            firstName: generics.defaultRegularUserForCreation.firstName,
+            lastName: generics.defaultRegularUserForCreation.lastName,
+            email: generics.defaultRegularUserForCreation.email
+          };
+
+          return User.find({
+            where: userFilter
+          }).then(user => {
+            chai.expect(album).to.be.a('object');
+            chai.expect(album.id).to.equal(mockedAlbum.id);
+            chai.expect(album.userId).to.equal(user.id);
+            chai.expect(album.title).to.equal(mockedAlbum.title);
+            dictum.chai(res, 'a new album is saved with the user who bought it');
+          });
+        });
       });
   });
 });
